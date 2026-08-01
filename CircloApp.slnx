@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CircloApp.API/CircloApp.API.csproj" />
+    <Project Path="src/CircloApp.Application/CircloApp.Application.csproj" />
+    <Project Path="src/CircloApp.Domain/CircloApp.Domain.csproj" />
+    <Project Path="src/CircloApp.Infrastructure/CircloApp.Infrastructure.csproj" />
+    <Project Path="src/CircloApp.Shared/CircloApp.Shared.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CircloApp.UnitTests/CircloApp.UnitTests.csproj" />
+  </Folder>
+</Solution>
