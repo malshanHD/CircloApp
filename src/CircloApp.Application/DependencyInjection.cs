@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using CircloApp.Application.Behaviors;
+using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -19,6 +21,10 @@ namespace CircloApp.Application
 
             services.AddValidatorsFromAssembly(
                 Assembly.GetExecutingAssembly());
+
+            services.AddTransient(
+                typeof(IPipelineBehavior<,>),
+                typeof(ValidationBehavior<,>));
 
             return services;
         }

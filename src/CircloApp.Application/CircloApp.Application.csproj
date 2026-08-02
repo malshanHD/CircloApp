@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Behaviors\" />
     <Folder Include="DTOs\" />
     <Folder Include="Mappings\" />
   </ItemGroup>

@@ -1,7 +1,7 @@
 ﻿using CircloApp.Application.Features.Authentication.Commands;
 using CircloApp.Application.Features.Authentication.DTOs;
+using CircloApp.Shared.Responses;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CircloApp.API.Controllers
@@ -21,7 +21,7 @@ namespace CircloApp.API.Controllers
         public async Task<ActionResult<RegisterUserResponse>> RegisterUser(RegisterUserRequest request, CancellationToken cancellationToken)
         {
             var response = await _mediator.Send(new RegisterUserCommand(request), cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponse<RegisterUserResponse>.SuccessResponse(response, "User registered successfully."));
         }
     }
 }
