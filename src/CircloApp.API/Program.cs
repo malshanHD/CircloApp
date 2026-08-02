@@ -1,3 +1,4 @@
+using CircloApp.API.Extensions;
 using CircloApp.Application;
 using CircloApp.Infrastructure;
 
@@ -18,6 +19,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseGlobalExceptionMiddleware();
 
 app.UseHttpsRedirection();
 
