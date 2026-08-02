@@ -1,4 +1,5 @@
 ﻿using CircloApp.Application.Features.Authentication.Commands;
+using CircloApp.Application.Features.Authentication.Commands.Login;
 using CircloApp.Application.Features.Authentication.DTOs;
 using CircloApp.Shared.Responses;
 using MediatR;
@@ -22,6 +23,13 @@ namespace CircloApp.API.Controllers
         {
             var response = await _mediator.Send(new RegisterUserCommand(request), cancellationToken);
             return Ok(ApiResponse<RegisterUserResponse>.SuccessResponse(response, "User registered successfully."));
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _mediator.Send(new LoginCommand(request), cancellationToken);
+            return Ok(ApiResponse<LoginResponse>.SuccessResponse(response, "User logged in successfully."));
         }
     }
 }
