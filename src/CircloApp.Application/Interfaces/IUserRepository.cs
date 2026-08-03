@@ -7,5 +7,6 @@ namespace CircloApp.Application.Interfaces
         Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken);
         Task<bool> ExistsByUsernameAsync(string username, CancellationToken cancellationToken);
         Task AddAsync(User user, CancellationToken cancellationToken);
+        Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail);
     }
 }

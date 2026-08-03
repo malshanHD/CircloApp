@@ -27,5 +27,10 @@ namespace CircloApp.Infrastructure.Repositories
         {
             return await _context.Users.AnyAsync(u => u.Username == username, cancellationToken);
         }
+
+        public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username == usernameOrEmail || u.Email == usernameOrEmail);
+        }
     }
 }
