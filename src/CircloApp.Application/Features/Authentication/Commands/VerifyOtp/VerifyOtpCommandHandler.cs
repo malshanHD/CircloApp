@@ -37,7 +37,7 @@ namespace CircloApp.Application.Features.Authentication.Commands.VerifyOtp
 
             if (pendingUser.FailedAttempts >= 5)
             {
-                await _cacheService.RemoveAsync(RedisKeys.Registration(command.Request.Email));
+                await RemoveCache(command.Request.Email);
                 throw new BadRequestException("Too many failed attempts. Please request a new OTP.");
             }
 
@@ -54,14 +54,14 @@ namespace CircloApp.Application.Features.Authentication.Commands.VerifyOtp
             var emailExists = await _userRepository.ExistsByEmailAsync(pendingUser.Email, cancellationToken);
             if (emailExists)
             {
-                await _cacheService.RemoveAsync(RedisKeys.Registration(command.Request.Email));
+                await RemoveCache(command.Request.Email);
                 throw new BadRequestException("Email already exists");
             }
 
             var usernameExists = await _userRepository.ExistsByUsernameAsync(pendingUser.Username, cancellationToken);
             if (usernameExists)
             {
-                await _cacheService.RemoveAsync(RedisKeys.Registration(command.Request.Email));
+                await RemoveCache(command.Request.Email);
                 throw new BadRequestException("Username already exists");
             }
 
@@ -78,13 +78,18 @@ namespace CircloApp.Application.Features.Authentication.Commands.VerifyOtp
 
             await _userRepository.AddAsync(user, cancellationToken: cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            await _cacheService.RemoveAsync(RedisKeys.Registration(command.Request.Email));
+            await RemoveCache(command.Request.Email);
 
             return new VerifyOtpResponse
             {
                 Success = true,
                 Message = "Email Verified Successfully"
             };
+        }
+
+        private async Task RemoveCache(string email)
+        {
+            await _cacheService.RemoveAsync(RedisKeys.Registration(email));
         }
     }
 }
