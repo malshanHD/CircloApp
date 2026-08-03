@@ -11,7 +11,7 @@ on:
       - develop
 
 jobs:
-  # Job 1: Executes Unit Tests with Coverlet Coverage
+  # Job 1: Executes Unit Tests with Merged Coverlet Coverage
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -28,26 +28,37 @@ jobs:
       - name: Restore Packages
         run: dotnet restore
 
+      # 1. Run tests and save raw coverage results into a single directory
       - name: Run Unit Tests with Coverage
         run: dotnet test --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
 
-      # --- NEW: Generate and display Markdown Summary ---
+      # 2. Install ReportGenerator tool locally
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+
+      # 3. Merge all coverage.cobertura.xml files into a single merged Cobertura file
+      - name: Merge Coverage Reports
+        run: reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"TestResults/Merged" -reporttypes:"Cobertura"
+
+      # 4. Generate Markdown summary from the SINGLE merged report
       - name: Code Coverage Summary
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: 'TestResults/**/coverage.cobertura.xml'
+          filename: 'TestResults/Merged/Cobertura.xml'
           badge: true
           format: markdown
           output: file
 
+      # 5. Append summary to GitHub step output
       - name: Add Coverage to Action Summary
         run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
 
+      # 6. Upload merged coverage result artifact
       - name: Upload Coverage Results
         uses: actions/upload-artifact@v4.6.1
         with:
           name: code-coverage-results
-          path: '**/TestResults/**/coverage.cobertura.xml'
+          path: 'TestResults/Merged/Cobertura.xml'
 
   # Job 2: Builds and Publishes the API
   build-and-publish:
