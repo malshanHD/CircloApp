@@ -11,7 +11,7 @@ on:
       - develop
 
 jobs:
-  # Job 1: Executes Unit Tests
+  # Job 1: Executes Unit Tests with Coverlet Coverage
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -28,8 +28,16 @@ jobs:
       - name: Restore Packages
         run: dotnet restore
 
-      - name: Run Unit Tests
-        run: dotnet test --no-restore --configuration Release --verbosity normal
+      # Run tests and collect coverage using Coverlet
+      - name: Run Unit Tests with Coverage
+        run: dotnet test --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+
+      # Upload coverage report artifact
+      - name: Upload Coverage Results
+        uses: actions/upload-artifact@v4.6.1
+        with:
+          name: code-coverage-results
+          path: '**/TestResults/**/coverage.cobertura.xml'
 
   # Job 2: Builds and Publishes the API
   build-and-publish:
