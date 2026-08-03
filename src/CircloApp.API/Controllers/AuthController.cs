@@ -19,10 +19,10 @@ namespace CircloApp.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<RegisterUserResponse>> RegisterUser(RegisterUserRequest request, CancellationToken cancellationToken)
+        public async Task<ActionResult<RegisterResponse>> RegisterUser(RegisterUserRequest request, CancellationToken cancellationToken)
         {
             var response = await _mediator.Send(new RegisterUserCommand(request), cancellationToken);
-            return Ok(ApiResponse<RegisterUserResponse>.SuccessResponse(response, "User registered successfully."));
+            return Ok(ApiResponse<RegisterResponse>.SuccessResponse(response, "User registered successfully."));
         }
 
         [HttpPost("login")]
