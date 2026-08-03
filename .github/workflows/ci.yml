@@ -5,15 +5,37 @@ on:
     branches:
       - master
       - develop
-
   pull_request:
     branches:
       - master
       - develop
 
 jobs:
-  build:
+  # Job 1: Executes Unit Tests
+  unit-tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore Packages
+        run: dotnet restore
+
+      - name: Run Unit Tests
+        run: dotnet test --no-restore --configuration Release --verbosity normal
+
+  # Job 2: Builds and Publishes the API
+  build-and-publish:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -28,9 +50,6 @@ jobs:
 
       - name: Build Solution
         run: dotnet build --no-restore --configuration Release
-
-      - name: Run Unit Tests
-        run: dotnet test --no-build --configuration Release
 
       - name: Publish API
         run: dotnet publish src/CircloApp.API/CircloApp.API.csproj -c Release -o publish
