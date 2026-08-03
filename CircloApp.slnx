@@ -7,6 +7,8 @@
     <Project Path="src/CircloApp.Shared/CircloApp.Shared.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/CircloApp.UnitTests/CircloApp.UnitTests.csproj" />
+    <Project Path="tests/CircloApp.API.Tests/CircloApp.API.Tests.csproj" Id="b08a1b2a-a8c0-479d-849b-5ef2f4dfcb48" />
+    <Project Path="tests/CircloApp.Application.Tests/CircloApp.Application.Tests.csproj" Id="16418988-40e9-4a05-a09d-6764bdcb5b2f" />
+    <Project Path="tests/CircloApp.Domain.Tests/CircloApp.Domain.Tests.csproj" Id="708b383c-eeaf-4150-b583-a2a0e8a93309" />
   </Folder>
 </Solution>
