@@ -73,7 +73,9 @@ namespace CircloApp.Application.Features.Authentication.Commands.VerifyOtp
                 ContactNumber = pendingUser.ContactNumber,
                 Username = pendingUser.Username,
                 PasswordHash = pendingUser.PasswordHash,
-                Role = UserRole.User
+                Role = UserRole.User,
+                CreatedAt = _timeProvider.UtcNow,
+                EmailVerified = true
             };
 
             await _userRepository.AddAsync(user, cancellationToken: cancellationToken);
