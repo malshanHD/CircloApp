@@ -61,6 +61,7 @@ namespace CircloApp.Application.Features.Authentication.Commands
                 OtpHash = otphash,
                 FailedAttempts = 0,
                 CreatedAt = _dateTimeProvider.UtcNow,
+                OtpExpiresAt = _dateTimeProvider.UtcNow.AddMinutes(5)
             };
 
             await _cacheService.SetAsync(RedisKeys.Registration(dto.Email), pending, TimeSpan.FromMinutes(10));
