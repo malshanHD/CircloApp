@@ -29,8 +29,8 @@ jobs:
       - name: Build Solution
         run: dotnet build --no-restore --configuration Release
 
-      # - name: Run Unit Tests
-      #   run: dotnet test --no-build --configuration Release
+      - name: Run Unit Tests
+        run: dotnet test --no-build --configuration Release
 
       - name: Publish API
         run: dotnet publish src/CircloApp.API/CircloApp.API.csproj -c Release -o publish
