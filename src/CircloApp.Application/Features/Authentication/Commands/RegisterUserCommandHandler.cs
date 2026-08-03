@@ -3,7 +3,6 @@ using CircloApp.Application.Common.Models;
 using CircloApp.Application.Exceptions;
 using CircloApp.Application.Features.Authentication.DTOs;
 using CircloApp.Application.Interfaces;
-using CircloApp.Domain.Entities;
 using MediatR;
 
 namespace CircloApp.Application.Features.Authentication.Commands

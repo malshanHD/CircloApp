@@ -20,7 +20,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit.v3" Version="3.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\CircloApp.Application\CircloApp.Application.csproj" />
+    <ProjectReference Include="..\..\src\CircloApp.Domain\CircloApp.Domain.csproj" />
+    <ProjectReference Include="..\..\src\CircloApp.Shared\CircloApp.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
