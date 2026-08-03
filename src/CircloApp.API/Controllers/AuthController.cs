@@ -1,5 +1,6 @@
 ﻿using CircloApp.Application.Features.Authentication.Commands;
 using CircloApp.Application.Features.Authentication.Commands.Login;
+using CircloApp.Application.Features.Authentication.Commands.VerifyOtp;
 using CircloApp.Application.Features.Authentication.DTOs;
 using CircloApp.Shared.Responses;
 using MediatR;
@@ -30,6 +31,13 @@ namespace CircloApp.API.Controllers
         {
             var response = await _mediator.Send(new LoginCommand(request), cancellationToken);
             return Ok(ApiResponse<LoginResponse>.SuccessResponse(response, "User logged in successfully."));
+        }
+
+        [HttpPost("verify-email")]
+        public async Task<ActionResult<VerifyOtpResponse>> VerifyEmail(VerifyOtpRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _mediator.Send(new VerifyOtpCommand(request), cancellationToken);
+            return Ok(ApiResponse<VerifyOtpResponse>.SuccessResponse(response, "Email verified successfully."));
         }
     }
 }

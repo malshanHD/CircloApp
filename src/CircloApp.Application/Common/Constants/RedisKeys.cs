@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CircloApp.Application.Common.Constants
+﻿namespace CircloApp.Application.Common.Constants
 {
     public static class RedisKeys
     {

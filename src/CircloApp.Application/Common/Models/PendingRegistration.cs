@@ -17,6 +17,7 @@
         public string OtpHash { get; set; } = string.Empty;
 
         public int FailedAttempts { get; set; }
+        public DateTime OtpExpiresAt { get; set; }
 
         public DateTime CreatedAt { get; set; }
     }
