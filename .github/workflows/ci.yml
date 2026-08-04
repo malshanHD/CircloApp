@@ -88,3 +88,24 @@ jobs:
         with:
           name: circloapp-api
           path: publish/
+
+  # Job 3: Deploys to Azure Web App (Only triggers on master branch push)
+  deploy:
+    name: Deploy to Azure
+    needs: [unit-tests, build-and-publish]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4.1.9
+        with:
+          name: circloapp-api
+          path: ./app
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'circloapp'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: './app'
