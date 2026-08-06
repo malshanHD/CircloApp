@@ -5,17 +5,20 @@ using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Add Azure Key Vault (Loads secrets in non-Development environments)
+// 1. Add Azure Key Vault (Loads secrets in ALL environments)
 var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
 
-if (!builder.Environment.IsDevelopment() && !string.IsNullOrEmpty(keyVaultUri))
+if (!string.IsNullOrEmpty(keyVaultUri))
 {
     builder.Configuration.AddAzureKeyVault(
         new Uri(keyVaultUri),
-        new Azure.Identity.DefaultAzureCredential()); // Fully qualified inline reference
+        new Azure.Identity.DefaultAzureCredential());
 }
 
-// 2. Add services to the container
+// 2. Add Application Insights (Now safe because Key Vault loaded 'ApplicationInsights--ConnectionString')
+builder.Services.AddApplicationInsightsTelemetry();
+
+// 3. Add services to the container
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddControllers();

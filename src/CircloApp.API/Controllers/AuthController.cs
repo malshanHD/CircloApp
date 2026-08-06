@@ -13,15 +13,18 @@ namespace CircloApp.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IMediator mediator)
+        public AuthController(IMediator mediator, ILogger<AuthController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpPost("register")]
         public async Task<ActionResult<RegisterResponse>> RegisterUser(RegisterUserRequest request, CancellationToken cancellationToken)
         {
+            _logger.LogInformation($"New registration Request receieved from {request.Email}");
             var response = await _mediator.Send(new RegisterUserCommand(request), cancellationToken);
             return Ok(ApiResponse<RegisterResponse>.SuccessResponse(response, "User registered successfully."));
         }
