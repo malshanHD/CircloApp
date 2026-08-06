@@ -29,8 +29,6 @@ namespace CircloApp.Infrastructure.Authentication
                 new(ClaimTypes.Email, user.Email),
 
                 new(ClaimTypes.Role, user.Role.ToString()),
-
-                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
