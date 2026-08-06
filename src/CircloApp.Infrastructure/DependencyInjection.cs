@@ -62,6 +62,8 @@ namespace CircloApp.Infrastructure
 
             services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEventRepository, EventRepository>();
+            services.AddScoped<IEventMemberRepository, EventMemberRepository>();
 
             return services;
         }
