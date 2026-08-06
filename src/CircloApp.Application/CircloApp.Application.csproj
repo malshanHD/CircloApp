@@ -24,6 +24,8 @@
     <Folder Include="Features\Authentication\VerifyOtp\" />
     <Folder Include="Features\Authentication\Register\" />
     <Folder Include="Mappings\" />
+    <Folder Include="DTOs\" />
+    <Folder Include="Mappings\" />
   </ItemGroup>
 
 </Project>

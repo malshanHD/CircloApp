@@ -1,6 +1,8 @@
 ﻿using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Interfaces;
+using CircloApp.Application.QueryModels.Events;
 using CircloApp.Domain.Entities;
+using CircloApp.Domain.Enums;
 using CircloApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +28,26 @@ namespace CircloApp.Infrastructure.Repositories
         public async Task<BudgetEvent> GetByIdAsync(Guid id, CancellationToken cancellationToken)
         {
             return await _context.BudgetEvents.Include(x => x.Members).FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        }
+
+        public async Task<EventSummaryModel?> GetEventDetailsAsync(Guid eventId, Guid currentUser, CancellationToken cancellationToken)
+        {
+            return await _context.BudgetEvents.AsNoTracking().Where(e => e.Id == eventId && e.Members.Any(m => m.UserId == currentUser && m.IsActive))
+                .Select(e => new EventSummaryModel
+                {
+                    Id = e.Id,
+                    Name = e.Name,
+                    Description = e.Description,
+                    CreatedAt = e.CreatedAt,
+
+                    Members = e.Members.Where(m => m.IsActive).Select(m => new EventMemberModel
+                    {
+                        UserId = m.UserId,
+                        Username = m.User.Username,
+                        FullName = m.User.FirstName + " " + m.User.LastName,
+                        Role = m.Role
+                    }).ToList()
+                }).FirstOrDefaultAsync(cancellationToken);
         }
 
         public async Task<PagedResponse<EventSummaryDto>> GetMyEventsAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken)
