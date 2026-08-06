@@ -64,6 +64,8 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEventRepository, EventRepository>();
             services.AddScoped<IEventMemberRepository, EventMemberRepository>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
 
             return services;
         }
