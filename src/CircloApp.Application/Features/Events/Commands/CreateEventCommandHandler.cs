@@ -43,6 +43,7 @@ namespace CircloApp.Application.Features.Events.Commands
                 JoinedAt = _dateTimeProvider.UtcNow,
                 CreatedAt = _dateTimeProvider.UtcNow,
                 UpdatedAt = _dateTimeProvider.UtcNow,
+                IsActive = true
             };
 
             await _eventRepository.AddAsync(budgetEvent, cancellationToken);

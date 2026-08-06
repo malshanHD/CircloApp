@@ -1,4 +1,5 @@
-﻿using CircloApp.Domain.Entities;
+﻿using CircloApp.Application.Features.Events.DTOs;
+using CircloApp.Domain.Entities;
 
 namespace CircloApp.Application.Interfaces
 {
@@ -8,5 +9,6 @@ namespace CircloApp.Application.Interfaces
         Task<BudgetEvent> GetByIdAsync(Guid id, CancellationToken cancellationToken);
         Task<IEnumerable<BudgetEvent>> GetUserIdAsync(Guid userId, CancellationToken cancellationToken);
         Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
+        Task<PagedResponse<EventSummaryDto>> GetMyEventsAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken);
     }
 }
