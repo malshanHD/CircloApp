@@ -1,7 +1,6 @@
 ﻿using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Interfaces;
 using CircloApp.Domain.Entities;
-using CircloApp.Domain.Enums;
 using MediatR;
 
 namespace CircloApp.Application.Features.Events.Commands

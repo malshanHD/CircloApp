@@ -2,7 +2,6 @@
 using CircloApp.Application.Interfaces;
 using CircloApp.Application.QueryModels.Events;
 using CircloApp.Domain.Entities;
-using CircloApp.Domain.Enums;
 using CircloApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -78,6 +77,11 @@ namespace CircloApp.Infrastructure.Repositories
         public async Task<IEnumerable<BudgetEvent>> GetUserIdAsync(Guid userId, CancellationToken cancellationToken)
         {
             return await _context.BudgetEvents.Where(x => x.CreatedByUserId == userId).ToListAsync(cancellationToken);
+        }
+
+        public async Task<bool> IsEventCreatedByUserAsync(Guid eventId, Guid userId, CancellationToken cancellationToken)
+        {
+            return await _context.BudgetEvents.AnyAsync(e => e.Id == eventId && e.CreatedByUserId == userId && !e.IsDeleted);
         }
     }
 }

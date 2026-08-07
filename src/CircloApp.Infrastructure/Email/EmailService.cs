@@ -12,6 +12,32 @@ namespace CircloApp.Infrastructure.Email
             _emailSettings = emailSettings.Value;
         }
 
+        public async Task SendEmailNotification(string email, string subject, string htmlBody)
+        {
+            var message = new MimeMessage();
+
+            message.From.Add(new MailboxAddress(_emailSettings.DisplayName, _emailSettings.Email));
+
+            message.To.Add(MailboxAddress.Parse(email));
+
+            message.Subject = subject;
+
+            var builder = new BodyBuilder
+            {
+                HtmlBody = htmlBody
+            };
+
+            message.Body = builder.ToMessageBody();
+
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+
+            await client.ConnectAsync(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.StartTls);
+
+            await client.AuthenticateAsync(_emailSettings.Email, _emailSettings.Password);
+
+            await client.SendAsync(message);
+        }
+
         public async Task SendOtpAsync(string email, string name, string otp)
         {
             var message = new MimeMessage();
