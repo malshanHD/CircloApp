@@ -13,9 +13,21 @@ namespace CircloApp.Infrastructure.Repositories
             _applicationDbContext = applicationDbContext;
         }
 
+        public async Task AcceptInvite(Guid userId, Guid eventId, CancellationToken cancellationToken)
+        {
+            var member = await _applicationDbContext.EventMembers
+                                    .Where(m => m.EventId == eventId && m.UserId == userId)
+                                        .ExecuteUpdateAsync(s => s.SetProperty(m => m.IsActive, true), cancellationToken);
+        }
+
         public async Task AddAsync(EventMember eventMember, CancellationToken cancellationToken)
         {
             await _applicationDbContext.EventMembers.AddAsync(eventMember, cancellationToken);
+        }
+
+        public async Task<EventMember> GetEventMember(Guid eventID, Guid userId, CancellationToken cancellationToken)
+        {
+            return await _applicationDbContext.EventMembers.FirstOrDefaultAsync(m => m.EventId == eventID && m.UserId == userId, cancellationToken: cancellationToken);
         }
 
         public async Task<bool> IsMemberExist(Guid eventID, Guid userId, CancellationToken cancellationToken)

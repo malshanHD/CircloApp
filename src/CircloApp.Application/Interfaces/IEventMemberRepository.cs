@@ -6,5 +6,7 @@ namespace CircloApp.Application.Interfaces
     {
         Task AddAsync(EventMember eventMember, CancellationToken cancellationToken);
         Task<bool> IsMemberExist(Guid eventID, Guid userId, CancellationToken cancellationToken);
+        Task AcceptInvite(Guid userId, Guid eventId, CancellationToken cancellationToken);
+        Task<EventMember> GetEventMember(Guid eventID, Guid userId, CancellationToken cancellationToken);
     }
 }

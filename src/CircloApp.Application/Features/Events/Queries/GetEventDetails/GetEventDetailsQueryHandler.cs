@@ -1,4 +1,5 @@
-﻿using CircloApp.Application.Features.Events.DTOs;
+﻿using CircloApp.Application.Exceptions;
+using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Interfaces;
 using MediatR;
 
@@ -20,7 +21,7 @@ namespace CircloApp.Application.Features.Events.Queries.GetEventDetails
 
             if(eventDetails == null)
             {
-                throw new DirectoryNotFoundException("Event not found");
+                throw new BadRequestException("Event not found");
             }
 
             return new EventDetailsDto
