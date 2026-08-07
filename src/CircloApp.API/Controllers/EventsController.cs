@@ -1,4 +1,5 @@
 ﻿using CircloApp.Application.Features.Events.Commands;
+using CircloApp.Application.Features.Events.Commands.InviteAccept;
 using CircloApp.Application.Features.Events.Commands.InviteEvent;
 using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Features.Events.Queries.GetEventDetails;
@@ -56,6 +57,15 @@ namespace CircloApp.API.Controllers
                 new EventInviteCommand(eventId, request));
 
             return Ok(memberId);
+        }
+
+        [HttpPost("{eventId:guid}/accept-invitation")]
+        public async Task<IActionResult> AcceptInvitation([FromRoute] Guid eventId, CancellationToken cancellationToken)
+        {
+            var response = await _mediator.Send(
+                new InviteAcceptCommand(eventId));
+
+            return Ok(response);
         }
 
         private Guid GetCurrentUserId()
