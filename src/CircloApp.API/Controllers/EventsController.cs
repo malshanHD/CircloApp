@@ -1,4 +1,5 @@
 ﻿using CircloApp.Application.Features.Events.Commands;
+using CircloApp.Application.Features.Events.Commands.InviteEvent;
 using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Features.Events.Queries.GetEventDetails;
 using CircloApp.Application.Features.Events.Queries.GetMyEvents;
@@ -44,6 +45,17 @@ namespace CircloApp.API.Controllers
             var result = await _mediator.Send(new GetEventDetailsQuery(eventId));
 
             return Ok(result);
+        }
+
+        [HttpPost("{eventId:guid}/members")]
+        public async Task<IActionResult> InviteMember(
+        Guid eventId,
+        InviteRequest request)
+        {
+            var memberId = await _mediator.Send(
+                new EventInviteCommand(eventId, request));
+
+            return Ok(memberId);
         }
 
         private Guid GetCurrentUserId()

@@ -12,5 +12,6 @@ namespace CircloApp.Application.Interfaces
         Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken);
         Task<PagedResponse<EventSummaryDto>> GetMyEventsAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken);
         Task<EventSummaryModel?> GetEventDetailsAsync(Guid eventId, Guid currentUser, CancellationToken cancellationToken);
+        Task<bool> IsEventCreatedByUserAsync(Guid eventId, Guid userId, CancellationToken cancellationToken);
     }
 }
