@@ -1,0 +1,11 @@
+﻿using CircloApp.Application.Features.Expenses.DTOs;
+using CircloApp.Domain.Entities;
+
+namespace CircloApp.Application.Interfaces
+{
+    public interface IExpensesService
+    {
+        Task AddExpense(Expense expense, CancellationToken cancellationToken);
+        Task<List<EventExpensesResponnse>> GetEventExpenses(Guid eventId, CancellationToken cancellationToken);
+    }
+}

@@ -2,6 +2,7 @@
 using CircloApp.Infrastructure.Authentication;
 using CircloApp.Infrastructure.Cache;
 using CircloApp.Infrastructure.Email;
+using CircloApp.Infrastructure.Helpers;
 using CircloApp.Infrastructure.OTP;
 using CircloApp.Infrastructure.Persistence;
 using CircloApp.Infrastructure.Repositories;
@@ -66,6 +67,8 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IEventMemberRepository, EventMemberRepository>();
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IExpensesService, ExpensesService>();
+            services.AddScoped<IEventExpenseSummaryHelper, EventExpenseSummaryHelper>();
 
             return services;
         }
