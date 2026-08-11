@@ -30,6 +30,11 @@ namespace CircloApp.Infrastructure.Repositories
             return await _applicationDbContext.EventMembers.FirstOrDefaultAsync(m => m.EventId == eventID && m.UserId == userId, cancellationToken: cancellationToken);
         }
 
+        public async Task<List<EventMember>> GetEventMembers(Guid eventID, CancellationToken cancellationToken)
+        {
+            return await _applicationDbContext.EventMembers.Include(e => e.User).Where(e => e.EventId == eventID).ToListAsync();
+        }
+
         public async Task<int> GetEventParticipantCountAsync(Guid eventId, CancellationToken cancellationToken)
         {
             return await _applicationDbContext.EventMembers.Where(b => b.EventId == eventId).CountAsync(cancellationToken);
