@@ -18,6 +18,11 @@ namespace CircloApp.Infrastructure.Repositories
             await _context.Expenses.AddAsync(expense);
         }
 
+        public async Task AddRangeAsync(IEnumerable<Expense> expenses, CancellationToken cancellationToken)
+        {
+            await _context.Expenses.AddRangeAsync(expenses, cancellationToken);
+        }
+
         public async Task<List<EventExpensesResponnse>> GetEventExpenses(Guid eventId, CancellationToken cancellationToken)
         {
             return await _context.Expenses
@@ -29,7 +34,10 @@ namespace CircloApp.Infrastructure.Repositories
                     Amount = e.Amount,
                     Description = e.Description,
                     DateAndTime = e.CreatedAt,
-                    PaidUser = e.PaidByUser.FirstName
+                    PaidUser = e.PaidByUser.FirstName,
+                    PaidUserId = e.PaidByUserId,
+                    PaidToUserId = e.PaidToUserId,
+                    Type = e.Type
                 }).ToListAsync(cancellationToken);
         }
     }

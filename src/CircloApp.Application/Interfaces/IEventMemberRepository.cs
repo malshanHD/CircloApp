@@ -9,5 +9,6 @@ namespace CircloApp.Application.Interfaces
         Task AcceptInvite(Guid userId, Guid eventId, CancellationToken cancellationToken);
         Task<EventMember> GetEventMember(Guid eventID, Guid userId, CancellationToken cancellationToken);
         Task<int> GetEventParticipantCountAsync(Guid eventId, CancellationToken cancellationToken);
+        Task<List<EventMember>> GetEventMembers(Guid eventID, CancellationToken cancellationToken);
     }
 }

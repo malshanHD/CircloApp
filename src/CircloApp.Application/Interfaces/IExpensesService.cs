@@ -6,6 +6,7 @@ namespace CircloApp.Application.Interfaces
     public interface IExpensesService
     {
         Task AddExpense(Expense expense, CancellationToken cancellationToken);
+        Task AddRangeAsync(IEnumerable<Expense> expenses, CancellationToken cancellationToken);
         Task<List<EventExpensesResponnse>> GetEventExpenses(Guid eventId, CancellationToken cancellationToken);
     }
 }
