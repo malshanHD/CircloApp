@@ -1,9 +1,11 @@
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
+
 function App() {
     return (
-        <div>
-            <h1>Circlo</h1>
-            <p>Welcome to Circlo</p>
-        </div>
+        <BrowserRouter>
+            <AppRoutes />
+        </BrowserRouter>
     );
 }
 
