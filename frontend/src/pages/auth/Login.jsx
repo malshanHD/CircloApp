@@ -3,17 +3,21 @@ import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FiLock, FiMail } from 'react-icons/fi'
 import { authService } from '../../services/authService'
+import { useNavigate } from 'react-router-dom'
 
 const Login = () => {
 
-    const queryClient = useQueryClient();
+    const navigate = useNavigate();
 
     const [payload, setPayload] = useState({});
 
     const {mutate, isLoading, isError} = useMutation({
         mutationFn: () => authService('/auth/login', payload),
-        onSuccess: ()=> {
-            queryClient.invalidateQueries({})
+        onSuccess: (response)=> {
+            const token = response.data.accessToken;
+            console.log(token);
+            localStorage.setItem('accessToken', token);
+            navigate('/dashboard');
         }
     });
 
