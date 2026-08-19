@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="DTOs\" />
+    <Folder Include="Features\AI\Queries\" />
     <Folder Include="Features\Authentication\VerifyOtp\" />
     <Folder Include="Features\Authentication\Register\" />
     <Folder Include="Mappings\" />
