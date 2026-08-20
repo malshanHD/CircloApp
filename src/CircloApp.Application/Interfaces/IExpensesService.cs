@@ -8,5 +8,7 @@ namespace CircloApp.Application.Interfaces
         Task AddExpense(Expense expense, CancellationToken cancellationToken);
         Task AddRangeAsync(IEnumerable<Expense> expenses, CancellationToken cancellationToken);
         Task<List<EventExpensesResponnse>> GetEventExpenses(Guid eventId, CancellationToken cancellationToken);
+        Task<List<GetUserAllExpensesResponse>> GetUserExpensesByEventAsync(Guid userId, CancellationToken cancellationToken);
+        Task<List<GetUserMonthlyExpensesResponse>> GetUserExpensesByMonth(Guid userId,int year, CancellationToken cancellationToken);
     }
 }

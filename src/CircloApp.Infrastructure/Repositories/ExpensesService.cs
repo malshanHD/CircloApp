@@ -1,6 +1,7 @@
 ﻿using CircloApp.Application.Features.Expenses.DTOs;
 using CircloApp.Application.Interfaces;
 using CircloApp.Domain.Entities;
+using CircloApp.Domain.Enums;
 using CircloApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,6 +40,44 @@ namespace CircloApp.Infrastructure.Repositories
                     PaidToUserId = e.PaidToUserId,
                     Type = e.Type
                 }).ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<GetUserAllExpensesResponse>> GetUserExpensesByEventAsync(Guid userId, CancellationToken cancellationToken)
+        {
+            return await _context.Expenses
+             .Where(e => e.PaidByUserId == userId || e.PaidToUserId == userId)
+             .GroupBy(e => new { e.EventId, e.Event.Name })
+             .Select(g => new GetUserAllExpensesResponse
+             {
+                 EventId = g.Key.EventId,
+                 EventName = g.Key.Name,
+                 TotalExpenses = g.Sum(e =>
+                                e.Type == TransactionType.Expense ? e.Amount :
+                                e.Type == TransactionType.Settlement ? -e.Amount : 0m)
+             })
+             .ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<GetUserMonthlyExpensesResponse>> GetUserExpensesByMonth(Guid userId, int year, CancellationToken cancellationToken)
+        {
+            var response =  await _context.Expenses
+                .Where(e => e.PaidByUserId == userId || e.PaidToUserId == userId && e.CreatedAt.Year == year)
+                .GroupBy(e => e.CreatedAt.Month)
+                .Select(g => new 
+                {
+                    MonthNumber = g.Key,
+                    TotalAmount = g.Sum(e =>
+                                e.Type == TransactionType.Expense ? e.Amount :
+                                e.Type == TransactionType.Settlement ? -e.Amount : 0m)
+                })
+                .OrderBy(g => g.MonthNumber)
+                .ToListAsync(cancellationToken);
+
+            return response.Select(x => new GetUserMonthlyExpensesResponse
+            {
+                Month = System.Globalization.CultureInfo.InvariantCulture.DateTimeFormat.GetMonthName(x.MonthNumber),
+                TotalAmount = x.TotalAmount
+            }).ToList();
         }
     }
 }

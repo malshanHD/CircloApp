@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../utils/auth";
 import { useState } from "react";
 
@@ -45,8 +45,8 @@ const Navigation = () => {
 
         {/* Navigation Links */}
         <div className="hidden md:flex items-center gap-8 font-medium text-white">
-          <a href="#" className="hover:text-slate-300 transition-colors">Dashboard</a>
-          <a href="#" className="hover:text-slate-300 transition-colors">My Events</a>
+          <Link className="hover:text-slate-300 transition-colors" to={"/dashboard"}>Dashboard</Link>
+          <Link className="hover:text-slate-300 transition-colors" to={"/events"}>My Events</Link>
           <button onClick={handleLogout} className="border border-slate-700/80 hover:bg-slate-800/60 px-5 py-2 rounded-full text-sm font-medium transition text-white">Logout</button>
         </div>
 
