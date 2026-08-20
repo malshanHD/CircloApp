@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.Google;
 using StackExchange.Redis;
 using System.Text;
 
@@ -69,6 +71,30 @@ namespace CircloApp.Infrastructure
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IExpensesService, ExpensesService>();
             services.AddScoped<IEventExpenseSummaryHelper, EventExpenseSummaryHelper>();
+
+            string apiKey = configuration["Gemini:ApiKey"]!;
+            string modelId = configuration["Gemini:ModelId"] ?? "gemini-3.6-flash";
+
+            var customHttpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromMinutes(3)
+            };
+
+            services.AddHttpClient("GeminiClient", client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(3);
+            });
+
+            services.AddTransient<Kernel>(sp =>
+            {
+                var kernelBuilder = Kernel.CreateBuilder();
+
+                kernelBuilder.AddGoogleAIGeminiChatCompletion(modelId: modelId, apiKey: apiKey, httpClient: customHttpClient, apiVersion: GoogleAIVersion.V1);
+
+                return kernelBuilder.Build();
+            });
+
+            services.AddScoped<IAiExpenseCategorizationService, AiExpenseCategorizationService>();
 
             return services;
         }
