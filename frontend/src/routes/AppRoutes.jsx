@@ -5,6 +5,7 @@ import Register from "../pages/auth/Register";
 import Dashboard from "../pages/dashboard/Dashboard";
 import OtpVerification from "../pages/auth/OtpVerification";
 import ProtectedRoute from "../components/ProtectedRoute";
+import Events from "../pages/events/Events";
 
 function AppRoutes() {
     return (
@@ -16,6 +17,7 @@ function AppRoutes() {
 
             <Route element={<ProtectedRoute />}>
                 <Route path = "/dashboard" element={<Dashboard />} />
+                <Route path="/events" element={<Events/>} />
             </Route>
         </Routes>
     );
