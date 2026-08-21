@@ -82,7 +82,7 @@ namespace CircloApp.Infrastructure
 
             services.AddHttpClient("GeminiClient", client =>
             {
-                client.Timeout = TimeSpan.FromMinutes(3);
+                client.Timeout = TimeSpan.FromMinutes(10);
             });
 
             services.AddTransient<Kernel>(sp =>

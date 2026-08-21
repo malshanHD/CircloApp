@@ -1,4 +1,5 @@
-﻿using CircloApp.Application.Interfaces;
+﻿using CircloApp.Application.Features.Authentication.DTOs;
+using CircloApp.Application.Interfaces;
 using CircloApp.Domain.Entities;
 using CircloApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +32,16 @@ namespace CircloApp.Infrastructure.Repositories
         public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Username == usernameOrEmail || u.Email == usernameOrEmail);
+        }
+
+        public async Task<List<GetUserResponse>> SearchUserByUsername(string username, CancellationToken cancellationToken)
+        {
+            return await _context.Users.Where(u => u.Username
+                                                .Contains(username)).Take(10)
+                                                .Select(user => new GetUserResponse
+                                                {
+                                                    Username = user.Username
+                                                }).ToListAsync(cancellationToken);
         }
     }
 }
