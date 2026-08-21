@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FiCalendar, FiUsers, FiArrowRight } from "react-icons/fi";
+import { FaUserPlus } from "react-icons/fa";
 import { eventService } from "../../services/eventService";
 import Navigation from "../../layouts/NavigationBar";
+import AddMemberModal from "../../pages/events/AddMemberModal"; // Adjust path as needed
+import loadingGif from "../../assets/loading.gif";
 
 const Events = () => {
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["my-events"],
+    queryKey: ["events"],
     queryFn: eventService.getMyEvents,
   });
 
@@ -15,7 +20,13 @@ const Events = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading your events...</div>
+        <div className="text-gray-600">
+          <img
+            src={loadingGif}
+            alt="Loading..."
+            className="w-16 h-16 object-contain"
+          />
+        </div>
       </div>
     );
   }
@@ -76,8 +87,21 @@ const Events = () => {
                   className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200"
                 >
                   {/* Event Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-5">
-                    <FiCalendar className="w-6 h-6 text-blue-600" />
+                  <div className="flex items-center justify-between mb-5">
+                    {/* Left Icon */}
+                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                      <FiCalendar className="w-6 h-6 text-blue-600" />
+                    </div>
+
+                    {/* Right Icon - Opens Add Member Modal */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedEvent(event)}
+                      className="w-12 h-12 rounded-xl hover:bg-blue-50 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
+                      title="Add Member"
+                    >
+                      <FaUserPlus className="w-5 h-5" />
+                    </button>
                   </div>
 
                   {/* Event Name */}
@@ -114,6 +138,14 @@ const Events = () => {
           )}
         </div>
       </main>
+
+      {/* Add Member Modal */}
+      <AddMemberModal
+        isOpen={Boolean(selectedEvent)}
+        onClose={() => setSelectedEvent(null)}
+        eventName={selectedEvent?.name}
+        eventId={selectedEvent?.id}
+      />
     </div>
   );
 };

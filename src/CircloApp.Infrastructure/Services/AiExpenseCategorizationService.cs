@@ -15,9 +15,9 @@ namespace CircloApp.Infrastructure.Services
         {
             //var promt = $@"You are an AI financial advisor for the Circlo app.
             //Analyze the following JSON expense data and provide 3 short, actionable financial recommendations:{expensesDataJson}";
-            var promt = "Hello How are you";
+            //var promt = "What is your name";
 
-            var result = await _kernel.InvokePromptAsync(promt, cancellationToken: cancellationToken);
+            var result = await _kernel.InvokePromptAsync(expensesDataJson, cancellationToken: cancellationToken);
             return result.ToString();
         }
     }

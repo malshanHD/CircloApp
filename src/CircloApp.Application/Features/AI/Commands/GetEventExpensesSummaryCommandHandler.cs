@@ -17,14 +17,14 @@ namespace CircloApp.Application.Features.AI.Commands
 
         public async Task<string> Handle(GetEventExpensesSummaryCommand request, CancellationToken cancellationToken)
         {
-            var expenses = await _service.GetEventExpenses(request.EventId, cancellationToken);
-            var simplifiedExpenses = expenses.Select(e => new
-            {
-                e.Description,
-                e.Amount
-            });
+            //var expenses = await _service.GetEventExpenses(request.EventId, cancellationToken);
+            //var simplifiedExpenses = expenses.Select(e => new
+            //{
+            //    e.Description,
+            //    e.Amount
+            //});
 
-            var expensesJson = JsonSerializer.Serialize(simplifiedExpenses);
+            var expensesJson = "Hello what is your name?";
             return await _aiExpenseCategorizationService.AnalyzeSpendingAsync(expensesJson, cancellationToken);
         }
     }
