@@ -4,6 +4,7 @@ using CircloApp.Application.Features.Authentication.Commands.VerifyOtp;
 using CircloApp.Application.Features.Authentication.DTOs;
 using CircloApp.Shared.Responses;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CircloApp.API.Controllers
