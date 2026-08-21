@@ -30,6 +30,7 @@ namespace CircloApp.API.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult<LoginResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
         {
             var response = await _mediator.Send(new LoginCommand(request), cancellationToken);
