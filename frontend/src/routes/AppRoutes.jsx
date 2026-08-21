@@ -12,7 +12,6 @@ function AppRoutes() {
         <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            {/* <Route path="/dashboard" element={<Dashboard />} /> */}
             <Route path="/verify-otp" element={<OtpVerification />} />
 
             <Route element={<ProtectedRoute />}>
