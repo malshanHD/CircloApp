@@ -95,6 +95,9 @@ namespace CircloApp.Infrastructure
             });
 
             services.AddScoped<IAiExpenseCategorizationService, AiExpenseCategorizationService>();
+            services.AddScoped<IAiService, SemanticKernelAiService>();
+            services.Configure<AzureAIOptions>(configuration.GetSection(AzureAIOptions.SectionName));
+            services.AddScoped<IEventAiAnalysisRepository, EventAiAnalysisRepository>();
 
             return services;
         }

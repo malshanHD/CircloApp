@@ -14,6 +14,8 @@ namespace CircloApp.Infrastructure.Persistence
         public DbSet<BudgetEvent> BudgetEvents { get; set; }
         public DbSet<EventMember> EventMembers { get; set; }
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<ExpenseAiCategory> ExpenseAiCategories { get; set; }
+        public DbSet<EventAiAnalysis> EventAiAnalyses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
