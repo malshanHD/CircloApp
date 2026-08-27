@@ -4,6 +4,7 @@ using CircloApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CircloApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260826051607_AddedAIExpensesCategoryTable")]
+    partial class AddedAIExpensesCategoryTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,40 +57,6 @@ namespace CircloApp.Infrastructure.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.ToTable("BudgetEvents", (string)null);
-                });
-
-            modelBuilder.Entity("CircloApp.Domain.Entities.EventAiAnalysis", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DataHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Model")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Summary")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EventId")
-                        .IsUnique();
-
-                    b.ToTable("EventAiAnalyses");
                 });
 
             modelBuilder.Entity("CircloApp.Domain.Entities.EventMember", b =>
@@ -285,17 +254,6 @@ namespace CircloApp.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedByUser");
-                });
-
-            modelBuilder.Entity("CircloApp.Domain.Entities.EventAiAnalysis", b =>
-                {
-                    b.HasOne("CircloApp.Domain.Entities.BudgetEvent", "Event")
-                        .WithOne()
-                        .HasForeignKey("CircloApp.Domain.Entities.EventAiAnalysis", "EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("CircloApp.Domain.Entities.EventMember", b =>

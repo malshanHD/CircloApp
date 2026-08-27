@@ -1,24 +1,31 @@
 ﻿using CircloApp.Application.Interfaces;
-using Microsoft.SemanticKernel;
+using CircloApp.Domain.Entities;
+using CircloApp.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace CircloApp.Infrastructure.Services
 {
     public class AiExpenseCategorizationService : IAiExpenseCategorizationService
     {
-        private readonly Kernel _kernel;
-        public AiExpenseCategorizationService(Kernel kernel)
+        private readonly ApplicationDbContext _context;
+
+        public AiExpenseCategorizationService(ApplicationDbContext applicationDbContext)
         {
-            _kernel = kernel;
+            _context = applicationDbContext;
         }
 
-        public async Task<string> AnalyzeSpendingAsync(string expensesDataJson, CancellationToken cancellationToken = default)
+        public async Task AddRangeAsync(IEnumerable<ExpenseAiCategory> categories, CancellationToken cancellationToken = default)
         {
-            //var promt = $@"You are an AI financial advisor for the Circlo app.
-            //Analyze the following JSON expense data and provide 3 short, actionable financial recommendations:{expensesDataJson}";
-            //var promt = "What is your name";
+            await _context.ExpenseAiCategories.AddRangeAsync(categories, cancellationToken);
 
-            var result = await _kernel.InvokePromptAsync(expensesDataJson, cancellationToken: cancellationToken);
-            return result.ToString();
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<List<ExpenseAiCategory>> GetByEventIdAsync(Guid eventId, CancellationToken cancellationToken = default)
+        {
+            return await _context.ExpenseAiCategories.AsNoTracking()
+                                                        .Where(x => x.Expense.EventId == eventId)
+                                                        .ToListAsync(cancellationToken);
         }
     }
 }

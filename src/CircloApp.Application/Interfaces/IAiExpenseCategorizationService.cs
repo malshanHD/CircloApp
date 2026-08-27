@@ -1,7 +1,11 @@
-﻿namespace CircloApp.Application.Interfaces
+﻿using CircloApp.Domain.Entities;
+
+namespace CircloApp.Application.Interfaces
 {
     public interface IAiExpenseCategorizationService
     {
-        Task<string> AnalyzeSpendingAsync(string expensesDataJson, CancellationToken cancellationToken = default);
+        Task<List<ExpenseAiCategory>> GetByEventIdAsync(Guid eventId, CancellationToken cancellationToken = default);
+
+        Task AddRangeAsync(IEnumerable<ExpenseAiCategory> categories, CancellationToken cancellationToken = default);
     }
 }
