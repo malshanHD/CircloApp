@@ -1,12 +1,11 @@
-﻿using Azure;
-using CircloApp.Application.Features.AI.DTO;
+﻿using CircloApp.Application.Features.AI.DTO;
 using CircloApp.Application.Features.AI.Queries.GetEventAiAnalysis;
 using CircloApp.Application.Features.Expenses.DTOs;
 using CircloApp.Application.Interfaces;
+using CircloApp.Infrastructure.AI.Plugins;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using OpenAI.Responses;
 using System.Text.Json;
 
 namespace CircloApp.Infrastructure.Services
@@ -16,7 +15,7 @@ namespace CircloApp.Infrastructure.Services
         private readonly Kernel _kernal;
         private readonly AzureAIOptions _azureAIOptions;
 
-        public SemanticKernelAiService(IOptions<AzureAIOptions> options)
+        public SemanticKernelAiService(IOptions<AzureAIOptions> options, CircloExpensePlugin expensePlugin)
         {
             _azureAIOptions = options.Value;
             var builder = Kernel.CreateBuilder();
@@ -24,6 +23,38 @@ namespace CircloApp.Infrastructure.Services
             builder.AddAzureOpenAIChatCompletion(deploymentName: _azureAIOptions.DeploymentName, endpoint: _azureAIOptions.SemanticKernelEndpoint, apiKey: _azureAIOptions.ApiKey);
 
             _kernal = builder.Build();
+
+            _kernal.Plugins.AddFromObject(expensePlugin, "CircloExpenses");
+        }
+
+        public async Task<string> AskCircloAsync(Guid eventId, string question, CancellationToken cancellationToken = default)
+        {
+            var executionSettings = new OpenAIPromptExecutionSettings
+            {
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+            };
+
+            var prompt = $$""""
+                         You are the AI assistant for Circlo, a shared expense application.
+
+                         answer questions about the specified event using the available tools.
+
+                         Event ID:
+                         {{eventId}}
+
+                         User Question:
+                         {{question}}
+
+                         Important rules:
+                         - Use tools when event-specific information is required.
+                         - Never invent event data.
+                         - Only answer using information returned by the available tools.
+                         - Keep the answer concise.
+                         """";
+
+            var result = await _kernal.InvokePromptAsync(prompt, new KernelArguments(executionSettings), cancellationToken: cancellationToken);
+
+            return result.ToString();
         }
 
         public async Task<CategorizedExpensesResponse> CategorizedExpensesAsync(List<EventExpensesResponnse> expenses, CancellationToken cancellationToken = default)
