@@ -1,4 +1,5 @@
-﻿using CircloApp.Application.Features.Expenses.DTOs;
+﻿using CircloApp.Application.Features.AI.DTO;
+using CircloApp.Application.Features.Expenses.DTOs;
 using CircloApp.Application.Interfaces;
 using CircloApp.Domain.Entities;
 using CircloApp.Domain.Enums;
@@ -40,6 +41,26 @@ namespace CircloApp.Infrastructure.Repositories
                     PaidToUserId = e.PaidToUserId,
                     Type = e.Type
                 }).ToListAsync(cancellationToken);
+        }
+
+        public async Task<List<MemberSpendingDto>> GetMemberSpendings(Guid eventId, CancellationToken cancellationToken = default)
+        {
+            return await _context.Expenses.AsNoTracking()
+                                          .Where(x => x.EventId == eventId)
+                                          .GroupBy(x => new
+                                          {
+                                              x.PaidToUserId,
+                                              x.PaidByUser.FirstName,
+                                              x.PaidByUser.LastName
+                                          })
+                                          .Select(group => new MemberSpendingDto
+                                          {
+                                              UserId = group.Key.PaidToUserId,
+                                              Name = group.Key.FirstName + " " + group.Key.LastName,
+                                              TotalPaid = group.Sum(x => x.Amount)
+                                          })
+                                          .OrderByDescending(x => x.TotalPaid)
+                                          .ToListAsync(cancellationToken);
         }
 
         public async Task<List<GetUserAllExpensesResponse>> GetUserExpensesByEventAsync(Guid userId, CancellationToken cancellationToken)

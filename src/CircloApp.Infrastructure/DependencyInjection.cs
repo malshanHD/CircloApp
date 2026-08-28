@@ -1,4 +1,5 @@
 ﻿using CircloApp.Application.Interfaces;
+using CircloApp.Infrastructure.AI.Plugins;
 using CircloApp.Infrastructure.Authentication;
 using CircloApp.Infrastructure.Cache;
 using CircloApp.Infrastructure.Email;
@@ -98,6 +99,7 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IAiService, SemanticKernelAiService>();
             services.Configure<AzureAIOptions>(configuration.GetSection(AzureAIOptions.SectionName));
             services.AddScoped<IEventAiAnalysisRepository, EventAiAnalysisRepository>();
+            services.AddScoped<CircloExpensePlugin>();
 
             return services;
         }

@@ -28,6 +28,11 @@ namespace CircloApp.Infrastructure.Services
             });
         }
 
+        public Task<string> AskCircloAsync(Guid eventId, string question, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CategorizedExpensesResponse> CategorizedExpensesAsync(List<EventExpensesResponnse> expenses, CancellationToken cancellationToken = default)
         {
             var expenseText = string.Join(

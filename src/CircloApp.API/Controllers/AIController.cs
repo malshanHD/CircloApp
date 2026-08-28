@@ -1,4 +1,6 @@
-﻿using CircloApp.Application.Features.AI.Commands;
+﻿using CircloApp.API.Models;
+using CircloApp.Application.Features.AI.Commands;
+using CircloApp.Application.Features.AI.Queries.AskCirclo;
 using CircloApp.Application.Features.AI.Queries.GetEventAiAnalysis;
 using CircloApp.Application.Interfaces;
 using MediatR;
@@ -41,6 +43,16 @@ namespace CircloApp.API.Controllers
             var res = await _service.GenerateAsync(prompt);
 
             return Ok(res);
+        }
+
+        [HttpPost("events/{eventId:guid}/ask")]
+        public async Task<IActionResult> AskCirclo(Guid eventId, [FromBody] AskCircloRequest request, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(new AskCircloQuery(eventId, request.Question), cancellationToken);
+            return Ok(new
+            {
+                answer = result,
+            });
         }
     }
 
