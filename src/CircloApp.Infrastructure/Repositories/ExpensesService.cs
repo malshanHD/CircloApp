@@ -43,6 +43,21 @@ namespace CircloApp.Infrastructure.Repositories
                 }).ToListAsync(cancellationToken);
         }
 
+        public async Task<List<EventExpensesResponnse>> GetExpensesByIdsAsync(Guid eventId, List<Guid> expenseIds, CancellationToken cancellationToken = default)
+        {
+            return await _context.Expenses
+                        .AsNoTracking()
+                        .Where(x => x.EventId == eventId && expenseIds.Contains(x.Id))
+                        .Select(e => new EventExpensesResponnse
+                        {
+                            Id = e.Id,
+                            Amount = e.Amount,
+                            Description= e.Description,
+                            DateAndTime= e.CreatedAt,
+                            PaidUser = e.PaidByUser.FirstName
+                        }).ToListAsync(cancellationToken);
+        }
+
         public async Task<List<MemberSpendingDto>> GetMemberSpendings(Guid eventId, CancellationToken cancellationToken = default)
         {
             return await _context.Expenses.AsNoTracking()

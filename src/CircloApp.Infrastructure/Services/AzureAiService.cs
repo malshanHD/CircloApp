@@ -3,7 +3,6 @@
 using CircloApp.Application.Features.AI.DTO;
 using CircloApp.Application.Features.AI.Queries.GetEventAiAnalysis;
 using CircloApp.Application.Features.Expenses.DTOs;
-using CircloApp.Application.Interfaces;
 using Microsoft.Extensions.Options;
 using OpenAI.Responses;
 using System.ClientModel;
@@ -11,7 +10,7 @@ using System.Text.Json;
 
 namespace CircloApp.Infrastructure.Services
 {
-    public class AzureAiService : IAiService
+    public class AzureAiService 
     {
         private readonly ResponsesClient _responsesClient;
         private readonly AzureAIOptions _azureAIOptions;
@@ -29,6 +28,11 @@ namespace CircloApp.Infrastructure.Services
         }
 
         public Task<string> AskCircloAsync(Guid eventId, string question, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<string> AskWithRagAsync(Guid eventId, string question, CancellationToken cancelToken = default)
         {
             throw new NotImplementedException();
         }

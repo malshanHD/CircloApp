@@ -6,7 +6,9 @@ using CircloApp.Infrastructure.AI.Plugins;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace CircloApp.Infrastructure.Services
 {
@@ -14,10 +16,16 @@ namespace CircloApp.Infrastructure.Services
     {
         private readonly Kernel _kernal;
         private readonly AzureAIOptions _azureAIOptions;
+        private readonly IExpenseVectorSearchService _expenseVectorSearchService;
+        private readonly IExpensesService _expensesService;
 
-        public SemanticKernelAiService(IOptions<AzureAIOptions> options, CircloExpensePlugin expensePlugin)
+        public SemanticKernelAiService(IOptions<AzureAIOptions> options, CircloExpensePlugin expensePlugin, 
+                                       IExpenseVectorSearchService expenseVectorSearchService, IExpensesService expensesService)
         {
             _azureAIOptions = options.Value;
+            _expenseVectorSearchService = expenseVectorSearchService;
+            _expensesService = expensesService;
+
             var builder = Kernel.CreateBuilder();
 
             builder.AddAzureOpenAIChatCompletion(deploymentName: _azureAIOptions.DeploymentName, endpoint: _azureAIOptions.SemanticKernelEndpoint, apiKey: _azureAIOptions.ApiKey);
@@ -53,6 +61,88 @@ namespace CircloApp.Infrastructure.Services
                          """";
 
             var result = await _kernal.InvokePromptAsync(prompt, new KernelArguments(executionSettings), cancellationToken: cancellationToken);
+
+            return result.ToString();
+        }
+
+        public async Task<string> AskCircloSmartAsync(Guid eventId, string question, CancellationToken cancellationToken = default)
+        {
+            var classification = await ClassifyQuestionAsync(question, cancellationToken);
+
+            return classification.Intent switch
+            {
+                AiQuestionIntent.Structured => await AskCircloAsync(
+                eventId,
+                question,
+                cancellationToken),
+
+                AiQuestionIntent.Sementic => await AskWithRagAsync(
+                        eventId,
+                        question,
+                        cancellationToken),
+
+                _ => throw new InvalidOperationException("Unsupported AI question intent.")
+            };
+        }
+
+        public async Task<string> AskWithRagAsync(Guid eventId, string question, CancellationToken cancelToken = default)
+        {
+            var searchResult = await _expenseVectorSearchService.SearchExpenseAsync(eventId, question, cancelToken);
+
+            if (searchResult.Count == 0)
+            {
+                return "I couldn't find any relevant expense information for this event.";
+            }
+
+            var expenseIds = searchResult.Select(x => Guid.Parse(x.Id)).ToList();
+
+            var expenses = await _expensesService.GetExpensesByIdsAsync(eventId, expenseIds, cancelToken);
+
+            var total = expenses.Sum(x => x.Amount);
+
+            var contextBuilder = new StringBuilder();
+
+            foreach (var expense in expenses)
+            {
+                contextBuilder.AppendLine($"- {expense.Description}: {expense.Amount}");
+            }
+
+            contextBuilder.AppendLine();
+            contextBuilder.AppendLine($"Calculated total: {total}");
+
+            var context = contextBuilder.ToString();
+
+            var prompt = """
+                            You are an expense assistant for the Circlo application.
+
+                            Answer the user's question using ONLY the information
+                            provided in the context.
+
+                            The monetary calculations in the context were already
+                            performed by the application.
+
+                            Do not recalculate totals.
+                            Do not invent expenses, amounts, categories, or facts.
+
+                            If the context is not sufficient to answer the question,
+                            say that there is not enough information.
+
+                            Expense context:
+                            {{$context}}
+
+                            User question:
+                            {{$question}}
+
+                            Give a concise and helpful answer.
+                            """;
+
+            var arguments = new KernelArguments
+            {
+                ["context"] = context,
+                ["question"] = question
+            };
+
+            var result = await _kernal.InvokePromptAsync(prompt, arguments, cancellationToken: cancelToken);
 
             return result.ToString();
         }
@@ -103,6 +193,65 @@ namespace CircloApp.Infrastructure.Services
             }
 
             return response;
+        }
+
+        public async Task<AiQuestionClassification> ClassifyQuestionAsync(string question, CancellationToken cancellationToken = default)
+        {
+            var prompt = """
+                            You classify questions for the Circlo expense application.
+
+                            Choose exactly one intent:
+
+                            Structured:
+                            Questions that require exact database facts, calculations,
+                            member information, totals, balances, who paid, how much someone paid,
+                            highest/lowest spending, or other structured numerical information.
+
+                            Semantic:
+                            Questions that ask about the meaning or type of expenses,
+                            such as food-related expenses, transport-related expenses,
+                            accommodation expenses, or finding expenses based on descriptions.
+
+                            Examples:
+
+                            "Who paid the most?"
+                            Structured
+
+                            "How much did John pay?"
+                            Structured
+
+                            "What food expenses did we have?"
+                            Semantic
+
+                            "Show me travel-related expenses."
+                            Semantic
+
+                            Question:
+                            {{$question}}
+                            """;
+
+            var executionSettings = new OpenAIPromptExecutionSettings
+            {
+                ResponseFormat = typeof(AiQuestionClassification)
+            };
+
+            var argument = new KernelArguments(executionSettings)
+            {
+                ["question"] = question
+            };
+
+            var result = await _kernal.InvokePromptAsync(prompt, argument, cancellationToken: cancellationToken);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            options.Converters.Add(new JsonStringEnumConverter());
+
+            var classification = JsonSerializer.Deserialize<AiQuestionClassification>(result.ToString(), options);
+
+            return classification ?? throw new InvalidOperationException("Unable to classify AI question");
         }
 
         public async Task<string> GenerateAsync(string prompt, CancellationToken cancellationToken = default)

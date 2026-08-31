@@ -10,5 +10,8 @@ namespace CircloApp.Application.Interfaces
         Task<CategorizedExpensesResponse> CategorizedExpensesAsync(List<EventExpensesResponnse> expenses, CancellationToken cancellationToken = default);
         Task<string> GenerateExpenseSummaryAsync(decimal totalExpense, List<CategorySummaryDto> categories, CancellationToken cancellationToken = default);
         Task<string> AskCircloAsync(Guid eventId, string question, CancellationToken cancellationToken = default);
+        Task<string> AskWithRagAsync(Guid eventId, string question, CancellationToken cancelToken = default);
+        Task<AiQuestionClassification> ClassifyQuestionAsync(string question, CancellationToken cancellationToken = default);
+        Task<string> AskCircloSmartAsync(Guid eventId, string question, CancellationToken cancellationToken= default);
     }
 }

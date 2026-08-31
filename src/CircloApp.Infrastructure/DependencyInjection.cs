@@ -4,9 +4,11 @@ using CircloApp.Infrastructure.Authentication;
 using CircloApp.Infrastructure.Cache;
 using CircloApp.Infrastructure.Email;
 using CircloApp.Infrastructure.Helpers;
+using CircloApp.Infrastructure.Options;
 using CircloApp.Infrastructure.OTP;
 using CircloApp.Infrastructure.Persistence;
 using CircloApp.Infrastructure.Repositories;
+using CircloApp.Infrastructure.Search;
 using CircloApp.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +102,9 @@ namespace CircloApp.Infrastructure
             services.Configure<AzureAIOptions>(configuration.GetSection(AzureAIOptions.SectionName));
             services.AddScoped<IEventAiAnalysisRepository, EventAiAnalysisRepository>();
             services.AddScoped<CircloExpensePlugin>();
+            services.AddScoped<IEmbeddingService, AzureEmbeddingService>();
+            services.Configure<AzureSearchOptions>(configuration.GetSection("AzureSearch"));
+            services.AddScoped<IExpenseVectorSearchService, AzureExpenseVectorSearchService>();
 
             return services;
         }
