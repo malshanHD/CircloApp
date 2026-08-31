@@ -12,5 +12,6 @@ namespace CircloApp.Application.Interfaces
         Task<List<GetUserAllExpensesResponse>> GetUserExpensesByEventAsync(Guid userId, CancellationToken cancellationToken);
         Task<List<GetUserMonthlyExpensesResponse>> GetUserExpensesByMonth(Guid userId,int year, CancellationToken cancellationToken);
         Task<List<MemberSpendingDto>> GetMemberSpendings(Guid eventId, CancellationToken cancellationToken = default);
+        Task<List<EventExpensesResponnse>> GetExpensesByIdsAsync(Guid eventId, List<Guid> expenseIds, CancellationToken cancellationToken = default);
     }
 }
