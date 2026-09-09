@@ -1,4 +1,6 @@
 ﻿using CircloApp.Application.Interfaces;
+using CircloApp.Application.Interfaces.AI;
+using CircloApp.Infrastructure.AI;
 using CircloApp.Infrastructure.AI.Plugins;
 using CircloApp.Infrastructure.Authentication;
 using CircloApp.Infrastructure.Cache;
@@ -105,6 +107,10 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IEmbeddingService, AzureEmbeddingService>();
             services.Configure<AzureSearchOptions>(configuration.GetSection("AzureSearch"));
             services.AddScoped<IExpenseVectorSearchService, AzureExpenseVectorSearchService>();
+
+            //New AI 
+            services.Configure<AzureAIOptionsII>(configuration.GetSection(AzureAIOptionsII.SectionName));
+            services.AddScoped<IAiChatService, SemanticKernelAiChatService>();
 
             return services;
         }
