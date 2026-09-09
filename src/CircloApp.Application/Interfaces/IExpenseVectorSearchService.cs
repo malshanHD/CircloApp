@@ -1,4 +1,5 @@
 ﻿using CircloApp.Application.Features.AI.DTO;
+using CircloApp.Domain.Entities;
 
 namespace CircloApp.Application.Interfaces
 {
@@ -8,5 +9,6 @@ namespace CircloApp.Application.Interfaces
         Task UploadExpenseAsync(Guid expenseId, Guid eventId, string description, decimal amount, CancellationToken cancellationToken = default);
         Task DeleteIndexAsync(CancellationToken cancellationToken = default);
         Task<List<ExpenseVectorSearchResult>> SearchExpenseAsync(Guid eventId, string query, CancellationToken cancellationToken = default);
+        Task IndexExpenseAsync(Expense expense, CancellationToken cancellationToken = default);
     }
 }

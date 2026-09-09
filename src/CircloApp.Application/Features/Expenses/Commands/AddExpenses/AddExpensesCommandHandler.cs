@@ -15,9 +15,11 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
         private readonly IUnitOfWork _unitWork;
         private readonly IEventMemberRepository _eventMemberRepository;
         private readonly IEventExpenseSummaryHelper _eventExpenseSummaryHelper;
+        private readonly IExpenseVectorSearchService _aiService;
 
         public AddExpensesCommandHandler(IExpensesService expensesService, ICurrentUserService currentUserService, 
-                                         IDateTimeProvider dateTimeProvider, IUnitOfWork unitOfWork, IEventMemberRepository eventMember, IEventExpenseSummaryHelper eventExpenseSummary)
+                                         IDateTimeProvider dateTimeProvider, IUnitOfWork unitOfWork, IEventMemberRepository eventMember, 
+                                         IEventExpenseSummaryHelper eventExpenseSummary, IExpenseVectorSearchService aiService)
         {
             _service = expensesService;
             _currentUserService = currentUserService;
@@ -25,6 +27,7 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
             _unitWork = unitOfWork;
             _eventMemberRepository = eventMember;
             _eventExpenseSummaryHelper = eventExpenseSummary;
+            _aiService = aiService;
         }
 
         public async Task<EventExpensesSummaryResponse> Handle(AddExpensesCommand request, CancellationToken cancellationToken)
@@ -56,6 +59,8 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
 
                 await _service.AddExpense(expenses, cancellationToken);
                 await _unitWork.SaveChangesAsync(cancellationToken);
+
+                await _aiService.IndexExpenseAsync(expenses, cancellationToken);
             }
 
             return await _eventExpenseSummaryHelper.EventExpensesSummaryAsync(request.EventId, cancellationToken);
@@ -154,7 +159,6 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
                         UpdatedAt = DateTime.UtcNow,
                         IsDeleted = false
                     });
-
                     settlementAmount -= paymentAmount;
                 }
 
