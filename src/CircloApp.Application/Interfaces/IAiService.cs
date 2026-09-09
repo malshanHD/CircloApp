@@ -11,7 +11,8 @@ namespace CircloApp.Application.Interfaces
         Task<string> GenerateExpenseSummaryAsync(decimal totalExpense, List<CategorySummaryDto> categories, CancellationToken cancellationToken = default);
         Task<string> AskCircloAsync(Guid eventId, string question, CancellationToken cancellationToken = default);
         Task<string> AskWithRagAsync(Guid eventId, string question, CancellationToken cancelToken = default);
-        Task<AiQuestionClassification> ClassifyQuestionAsync(string question, CancellationToken cancellationToken = default);
+        Task<AiQuestionIntent> ClassifyQuestionAsync(string question, CancellationToken cancellationToken = default);
         Task<string> AskCircloSmartAsync(Guid eventId, string question, CancellationToken cancellationToken= default);
+        Task<string> AskSemanticCalculationAsync(Guid eventId, string question, CancellationToken cancellationToken);
     }
 }

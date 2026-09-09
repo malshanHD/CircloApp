@@ -3,6 +3,7 @@
     public enum AiQuestionIntent
     {
         Structured,
-        Sementic
+        Sementic,
+        SemanticCalculation
     }
 }

@@ -5,6 +5,7 @@ using Azure.Search.Documents.Indexes.Models;
 using Azure.Search.Documents.Models;
 using CircloApp.Application.Features.AI.DTO;
 using CircloApp.Application.Interfaces;
+using CircloApp.Domain.Entities;
 using CircloApp.Infrastructure.Options;
 using Microsoft.Extensions.Options;
 
@@ -93,6 +94,32 @@ namespace CircloApp.Infrastructure.Search
         public async Task DeleteIndexAsync(CancellationToken cancellationToken = default)
         {
             await _indexClient.DeleteIndexAsync(_searchOptions.IndexName,cancellationToken);
+        }
+
+        public async Task IndexExpenseAsync(Expense expense, CancellationToken cancellationToken = default)
+        {
+            var searchableText =
+                                $"Description: {expense.Description}. " +
+                                $"Amount: {expense.Amount}. " +
+                                $"Type: {expense.Type}.";
+
+            var embedding = await _embeddingService
+                .GenerateEmbeddingAync(
+                    searchableText,
+                    cancellationToken);
+
+            var document = new ExpenseSearchDocument
+            {
+                Id = expense.Id.ToString(),
+                EventId = expense.EventId.ToString(),
+                Description = expense.Description,
+                Amount = (double)expense.Amount,
+                Embedding = embedding
+            };
+
+            await _searchClient.UploadDocumentsAsync(
+                new[] { document },
+                cancellationToken: cancellationToken);
         }
 
         public async Task<List<ExpenseVectorSearchResult>> SearchExpenseAsync(Guid eventId, string query, CancellationToken cancellationToken = default)

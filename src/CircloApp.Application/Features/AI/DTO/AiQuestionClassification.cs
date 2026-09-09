@@ -2,7 +2,7 @@
 {
     public class AiQuestionClassification
     {
-        public AiQuestionIntent Intent { get; set; }
+        public string Intent { get; set; } = string.Empty;
         public string Reason { get; set; } = string.Empty;
     }
 }

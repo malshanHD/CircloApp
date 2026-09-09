@@ -2,9 +2,7 @@
 {
     public static class VectorHelper
     {
-        public static double CosineSimilarity(
-        ReadOnlyMemory<float> vectorA,
-        ReadOnlyMemory<float> vectorB)
+        public static double CosineSimilarity(ReadOnlyMemory<float> vectorA, ReadOnlyMemory<float> vectorB)
         {
             var a = vectorA.Span;
             var b = vectorB.Span;

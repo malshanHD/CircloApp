@@ -31,6 +31,8 @@ namespace CircloApp.Infrastructure.Email
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
 
+            client.CheckCertificateRevocation = false;
+
             await client.ConnectAsync(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.StartTls);
 
             await client.AuthenticateAsync(_emailSettings.Email, _emailSettings.Password);
@@ -86,6 +88,8 @@ namespace CircloApp.Infrastructure.Email
             message.Body = builder.ToMessageBody();
 
             using var client = new MailKit.Net.Smtp.SmtpClient();
+
+            client.CheckCertificateRevocation = false;
 
             await client.ConnectAsync(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.StartTls);
 
