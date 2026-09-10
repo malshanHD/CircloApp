@@ -1,6 +1,7 @@
 ﻿using CircloApp.Application.Exceptions;
 using CircloApp.Application.Features.Expenses.DTOs;
 using CircloApp.Application.Interfaces;
+using CircloApp.Application.Interfaces.AI;
 using CircloApp.Domain.Entities;
 using CircloApp.Domain.Enums;
 using MediatR;
@@ -16,10 +17,11 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
         private readonly IEventMemberRepository _eventMemberRepository;
         private readonly IEventExpenseSummaryHelper _eventExpenseSummaryHelper;
         private readonly IExpenseVectorSearchService _aiService;
+        private readonly IExpenseSearchIndexer _expenseSearchIndexer;
 
         public AddExpensesCommandHandler(IExpensesService expensesService, ICurrentUserService currentUserService, 
                                          IDateTimeProvider dateTimeProvider, IUnitOfWork unitOfWork, IEventMemberRepository eventMember, 
-                                         IEventExpenseSummaryHelper eventExpenseSummary, IExpenseVectorSearchService aiService)
+                                         IEventExpenseSummaryHelper eventExpenseSummary, IExpenseVectorSearchService aiService, IExpenseSearchIndexer expenseSearchIndexer)
         {
             _service = expensesService;
             _currentUserService = currentUserService;
@@ -28,6 +30,7 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
             _eventMemberRepository = eventMember;
             _eventExpenseSummaryHelper = eventExpenseSummary;
             _aiService = aiService;
+            _expenseSearchIndexer = expenseSearchIndexer;
         }
 
         public async Task<EventExpensesSummaryResponse> Handle(AddExpensesCommand request, CancellationToken cancellationToken)
@@ -60,7 +63,7 @@ namespace CircloApp.Application.Features.Expenses.Commands.AddExpenses
                 await _service.AddExpense(expenses, cancellationToken);
                 await _unitWork.SaveChangesAsync(cancellationToken);
 
-                await _aiService.IndexExpenseAsync(expenses, cancellationToken);
+                await _expenseSearchIndexer.IndexExpenseAsync(expenses.Id, expenses.EventId, expenses.Description, expenses.Amount, cancellationToken);
             }
 
             return await _eventExpenseSummaryHelper.EventExpensesSummaryAsync(request.EventId, cancellationToken);

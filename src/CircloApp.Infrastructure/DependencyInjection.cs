@@ -2,6 +2,7 @@
 using CircloApp.Application.Interfaces.AI;
 using CircloApp.Infrastructure.AI;
 using CircloApp.Infrastructure.AI.Plugins;
+using CircloApp.Infrastructure.AI.Search;
 using CircloApp.Infrastructure.Authentication;
 using CircloApp.Infrastructure.Cache;
 using CircloApp.Infrastructure.Email;
@@ -105,12 +106,17 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IEventAiAnalysisRepository, EventAiAnalysisRepository>();
             services.AddScoped<CircloExpensePlugin>();
             services.AddScoped<IEmbeddingService, AzureEmbeddingService>();
-            services.Configure<AzureSearchOptions>(configuration.GetSection("AzureSearch"));
+            services.Configure<AzureSearchOptions>(configuration.GetSection("AzureSearchNew"));
             services.AddScoped<IExpenseVectorSearchService, AzureExpenseVectorSearchService>();
 
             //New AI 
             services.Configure<AzureAIOptionsII>(configuration.GetSection(AzureAIOptionsII.SectionName));
             services.AddScoped<IAiChatService, SemanticKernelAiChatService>();
+            services.AddScoped<IEmbeddingServiceII, SemanticKernelEmbeddingService>();
+
+            services.AddScoped<AzureSearchIndexService_II>();
+            services.AddScoped<IExpenseSearchIndexer, AzureExpenseSearchIndexer>();
+            services.AddScoped<IExpenseSearchService, AzureExpenseSearchService>();
 
             return services;
         }
