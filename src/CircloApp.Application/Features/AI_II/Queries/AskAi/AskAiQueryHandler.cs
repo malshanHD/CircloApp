@@ -1,4 +1,5 @@
-﻿using CircloApp.Application.Interfaces.AI;
+﻿using CircloApp.Application.Features.AI_II.Models;
+using CircloApp.Application.Interfaces.AI;
 using MediatR;
 using System.Text;
 
@@ -8,15 +9,31 @@ namespace CircloApp.Application.Features.AI_II.Queries.AskAi
     {
         private readonly IAiChatService _chatService;
         private readonly IExpenseSearchService _expenseSearchService;
+        private readonly IAiIntentService _aiIntentService;
+        private readonly IExpenseRelevanceService _expenseRelevanceService;
 
-        public AskAiQueryHandler(IAiChatService chatService, IExpenseSearchService expenseSearchService)
+        public AskAiQueryHandler(IAiChatService chatService, IExpenseSearchService expenseSearchService, 
+                                 IAiIntentService aiIntentService, IExpenseRelevanceService expenseRelevanceService)
         {
             _chatService = chatService;
             _expenseSearchService = expenseSearchService;
+            _aiIntentService = aiIntentService;
+            _expenseRelevanceService = expenseRelevanceService;
         }
 
         public async Task<string> Handle(AskAiQuery request, CancellationToken cancellationToken)
         {
+            var intent = await _aiIntentService.DetermineIntentAsync(request.Question, cancellationToken);
+
+            if (intent == AiQueryIntent.Calculation)
+            {
+                var candidates = await _expenseSearchService.SearchExpensesAsync(request.EventId, request.Question, cancellationToken);
+
+                var relevantExpenseIds = await _expenseRelevanceService.GetRelevantExpenseIdsAsync(request.Question, candidates, cancellationToken);
+
+                return string.Join(Environment.NewLine, relevantExpenseIds);
+            }
+
             var searchResults = await _expenseSearchService.SearchExpensesAsync(request.EventId, request.Question, cancellationToken);
 
             var contextBuilder = new StringBuilder();

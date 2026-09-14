@@ -25,7 +25,7 @@ namespace CircloApp.Infrastructure.AI.Search
 
             var vectorQuery = new VectorizedQuery(queryEmbedding)
             {
-                KNearestNeighborsCount = 5,
+                KNearestNeighborsCount = 20,
             };
 
             vectorQuery.Fields.Add("embedding");

@@ -117,6 +117,8 @@ namespace CircloApp.Infrastructure
             services.AddScoped<AzureSearchIndexService_II>();
             services.AddScoped<IExpenseSearchIndexer, AzureExpenseSearchIndexer>();
             services.AddScoped<IExpenseSearchService, AzureExpenseSearchService>();
+            services.AddScoped<IAiIntentService, SemanticKernelAiIntentService>();
+            services.AddScoped<IExpenseRelevanceService, SemanticKernelExpenseRelevanceService>();
 
             return services;
         }
