@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CircloApp.API.Controllers
 {
+    [Obsolete("This controller is deprecated. Use NewController instead.")]
     [Route("api/[controller]")]
     [ApiController]
     public class AIController : ControllerBase
