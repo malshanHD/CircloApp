@@ -12,12 +12,7 @@ import {
   FiArrowLeft,
   FiZap,
 } from "react-icons/fi";
-import {
-  useEvent,
-  useSummary,
-  isEventId,
-  useAcceptInvite,
-} from "../../features/events/hooks";
+import { useEvent, useSummary, isEventId } from "../../features/events/hooks";
 import {
   Page,
   ApiError,
@@ -43,10 +38,6 @@ function EventContent({ eventId }) {
   const [invite, setInvite] = useState(false);
   const [expense, setExpense] = useState(null);
   const [success, setSuccess] = useState(location.state?.success || "");
-  const accept = useAcceptInvite(eventId, () => {
-    setSuccess("Invitation accepted. Welcome to your circle!");
-    query.refetch();
-  });
   if (query.isPending) return <Skeleton />;
   if (query.isError)
     return (
@@ -55,20 +46,10 @@ function EventContent({ eventId }) {
           ← All events
         </Link>
         <ApiError error={query.error} retry={() => query.refetch()} />
-        <div className="card">
-          <h2>Were you invited?</h2>
-          <p className="muted small">
-            If you have a pending invitation, accept it to view this event.
-          </p>
-          <ApiError error={accept.error} />
-          <button
-            className="button primary"
-            onClick={() => accept.mutate()}
-            disabled={accept.isPending}
-          >
-            {accept.isPending ? "Joining…" : "Accept invitation"}
-          </button>
-        </div>
+        <p className="muted">
+          Use the shared event link to request access and wait for admin
+          approval.
+        </p>
       </>
     );
   const event = query.data;
@@ -92,9 +73,11 @@ function EventContent({ eventId }) {
             </span>
           </div>
         </div>
-        <button className="button secondary" onClick={() => setInvite(true)}>
-          <FiUsers /> Invite someone
-        </button>
+        {event.isAdmin && (
+          <button className="button secondary" onClick={() => setInvite(true)}>
+            <FiUsers /> Share event link
+          </button>
+        )}
       </div>
       <nav className="detail-tabs" aria-label="Event sections">
         {[
@@ -232,12 +215,14 @@ function EventContent({ eventId }) {
                 {event.members.length} active members
               </p>
             </div>
-            <button
-              className="button secondary"
-              onClick={() => setInvite(true)}
-            >
-              Invite someone
-            </button>
+            {event.isAdmin && (
+              <button
+                className="button secondary"
+                onClick={() => setInvite(true)}
+              >
+                Share event link
+              </button>
+            )}
           </div>
           <div className="members-grid">
             {event.members.map((member) => (

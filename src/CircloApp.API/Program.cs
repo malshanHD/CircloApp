@@ -7,8 +7,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 var keyVaultUri = builder.Configuration["KeyVault:VaultUri"];
 
-Console.WriteLine($"KEY VAULT URI = {keyVaultUri}");
-
 if (!string.IsNullOrEmpty(keyVaultUri))
 {
     builder.Configuration.AddAzureKeyVault(

@@ -1,5 +1,7 @@
 # Circlo frontend integration
 
+> Membership update (2026-09-15): the invitation routes and behavior described below are superseded by [shared links and admin approval](JOIN-REQUESTS.md). Other integration details remain unchanged.
+
 Implemented against the repository's controllers, DTOs, validators, handlers, JWT configuration, and existing React services on 2026-09-14.
 
 ## Run locally

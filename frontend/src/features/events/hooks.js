@@ -37,25 +37,18 @@ export function useCreateEvent(onSuccess) {
     },
   });
 }
-export function useInvite(eventId, onSuccess) {
+export function useJoinAction(eventId, onSuccess, userId) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (data) => eventService.addMemberToEvent(eventId, data),
-    onSuccess: (result) => {
-      client.invalidateQueries({ queryKey: ["event", eventId] });
-      client.invalidateQueries({ queryKey: ["events"] });
-      onSuccess(result);
-    },
-  });
-}
-export function useAcceptInvite(eventId, onSuccess) {
-  const client = useQueryClient();
-  return useMutation({
-    mutationKey: ["accept-invite", eventId],
-    mutationFn: () => eventService.acceptInvitation(eventId),
+    mutationKey: ["join-action", eventId, userId],
+    mutationFn: () =>
+      userId
+        ? eventService.approveJoin(eventId, userId)
+        : eventService.requestJoin(eventId),
     onSuccess: async () => {
       await Promise.all([
-        client.invalidateQueries({ queryKey: ["event-invitations"] }),
+        client.invalidateQueries({ queryKey: ["join-requests"] }),
+        client.invalidateQueries({ queryKey: ["join-status", eventId] }),
         client.invalidateQueries({ queryKey: ["event", eventId] }),
         client.invalidateQueries({ queryKey: ["events"] }),
         client.invalidateQueries({ queryKey: ["event-summary", eventId] }),
@@ -93,10 +86,10 @@ export function useExpenseHistory(year) {
   return { events, months };
 }
 
-export function useInvitations() {
+export function useJoinRequests() {
   return useQuery({
-    queryKey: ["event-invitations"],
-    queryFn: ({ signal }) => eventService.getInvitations(signal),
+    queryKey: ["join-requests"],
+    queryFn: ({ signal }) => eventService.getJoinRequests(signal),
     staleTime: 15000,
     refetchInterval: 30000,
     refetchIntervalInBackground: false,

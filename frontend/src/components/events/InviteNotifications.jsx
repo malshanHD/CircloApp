@@ -3,14 +3,18 @@ import { useIsMutating } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { FiBell, FiRefreshCw, FiUserPlus } from "react-icons/fi";
 import {
-  useInvitations,
-  useAcceptInvite,
+  useJoinRequests,
+  useJoinAction,
   isEventId,
 } from "../../features/events/hooks";
 import { Modal, ApiError, Empty, Skeleton } from "../common/UI";
 
 function Invitation({ invitation, onAccepted }) {
-  const mutation = useAcceptInvite(invitation.eventId, onAccepted);
+  const mutation = useJoinAction(
+    invitation.eventId,
+    onAccepted,
+    invitation.userId,
+  );
   return (
     <li className="invitation-item">
       <span className="invitation-icon" aria-hidden="true">
@@ -18,22 +22,23 @@ function Invitation({ invitation, onAccepted }) {
       </span>
       <div className="invitation-content">
         <p>
-          <strong>{invitation.inviterName}</strong> invited you to{" "}
+          <strong>{invitation.fullName}</strong> requested to join{" "}
           <strong>{invitation.eventName}</strong>.
         </p>
         <p className="muted small">
-          Join the event to view its members and shared expenses.
+          @{invitation.username} · Approve to give this user access to the
+          event.
         </p>
         <ApiError error={mutation.error} />
         <button
           className="button primary"
-          aria-label={`Accept invitation to ${invitation.eventName}`}
+          aria-label={`Approve ${invitation.fullName} for ${invitation.eventName}`}
           disabled={mutation.isPending || !isEventId(invitation.eventId)}
           onClick={() => {
             if (!mutation.isPending) mutation.mutate();
           }}
         >
-          {mutation.isPending ? "Joining…" : "Accept invitation"}
+          {mutation.isPending ? "Approving…" : "Approve request"}
         </button>
       </div>
     </li>
@@ -42,15 +47,15 @@ function Invitation({ invitation, onAccepted }) {
 
 export default function InviteNotifications() {
   const [open, setOpen] = useState(false);
-  const query = useInvitations();
+  const query = useJoinRequests();
   const navigate = useNavigate();
-  const accepting = useIsMutating({ mutationKey: ["accept-invite"] }) > 0;
-  const count = query.data?.invitationsCount;
+  const accepting = useIsMutating({ mutationKey: ["join-action"] }) > 0;
+  const count = query.data?.length;
   const label = query.isPending
-    ? "Invitations, loading"
+    ? "Join requests, loading"
     : query.isError
-      ? "Invitations, unable to refresh"
-      : `Invitations, ${count ?? 0} pending`;
+      ? "Join requests, unable to refresh"
+      : `Join requests, ${count ?? 0} pending`;
   return (
     <>
       <button
@@ -74,12 +79,12 @@ export default function InviteNotifications() {
       </button>
       <span className="sr-only" role="status">
         {typeof count === "number"
-          ? `${count} pending event invitation${count === 1 ? "" : "s"}`
+          ? `${count} pending join request${count === 1 ? "" : "s"}`
           : ""}
       </span>
       {open && (
         <Modal
-          title="Your invitations"
+          title="Join requests"
           onClose={() => setOpen(false)}
           busy={accepting}
           className="invitations-modal"
@@ -87,12 +92,12 @@ export default function InviteNotifications() {
           <div className="section-heading">
             <p className="muted small">
               {typeof count === "number"
-                ? `${count} invitation${count === 1 ? "" : "s"} waiting for you.`
+                ? `${count} request${count === 1 ? "" : "s"} waiting for approval.`
                 : "Your next shared plan could be here."}
             </p>
             <button
               className="icon-button"
-              aria-label="Refresh invitations"
+              aria-label="Refresh join requests"
               disabled={query.isFetching || accepting}
               onClick={() => query.refetch()}
             >
@@ -104,17 +109,17 @@ export default function InviteNotifications() {
           ) : (
             <>
               <ApiError error={query.error} retry={() => query.refetch()} />
-              {query.data?.inviteDetails?.length ? (
+              {query.data?.length ? (
                 <ul className="invitation-list">
-                  {query.data.inviteDetails.map((invitation) => (
+                  {query.data.map((invitation) => (
                     <Invitation
-                      key={invitation.eventId}
+                      key={`${invitation.eventId}-${invitation.userId}`}
                       invitation={invitation}
                       onAccepted={() => {
                         setOpen(false);
                         navigate(`/events/${invitation.eventId}`, {
                           state: {
-                            success: `You've joined ${invitation.eventName}.`,
+                            success: `${invitation.fullName} has been approved.`,
                           },
                         });
                       }}
@@ -124,7 +129,7 @@ export default function InviteNotifications() {
               ) : (
                 !query.isError && (
                   <Empty title="You're all caught up.">
-                    When someone invites you to an event, it will appear here.
+                    Requests to join events you administer will appear here.
                   </Empty>
                 )
               )}

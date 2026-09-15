@@ -49,18 +49,24 @@ export const summary = {
 const initialInvitations = [
   {
     eventId: newEventId,
-    inviterName: "Malshan Perera",
+    fullName: "Malshan Perera",
+    userId,
+    username: "malshan",
     eventName: "New test event",
   },
   {
     eventId: "d57321be-e55d-4087-ae7a-264cd4f70174",
-    inviterName: "Alex Silva",
+    fullName: "Alex Silva",
+    userId,
+    username: "alex",
     eventName: "Beach day",
   },
 ];
 const acceptedInvitations = new Set();
+const requestedEvents = new Set();
 export function resetFixtureState() {
   acceptedInvitations.clear();
+  requestedEvents.clear();
 }
 export const expenseRows = [
   {
@@ -143,14 +149,29 @@ export function fixture(method, path, data = {}) {
       : {
           body: { eventId: newEventId, message: "Event Created Successfully" },
         };
-  if (route === "/events/event-invite-notifications") {
+  if (route === "/events/join-requests") {
     const inviteDetails = initialInvitations.filter(
       (invite) => !acceptedInvitations.has(invite.eventId),
     );
-    return { body: { invitationsCount: inviteDetails.length, inviteDetails } };
+    return { body: inviteDetails };
+  }
+  if (route.endsWith("/join-request"))
+    return {
+      body: {
+        eventName: "New test event",
+        status: acceptedInvitations.has(route.split("/")[2])
+          ? "active"
+          : requestedEvents.has(route.split("/")[2])
+            ? "pending"
+            : "not-requested",
+      },
+    };
+  if (route.endsWith("/join-requests") && method === "POST") {
+    requestedEvents.add(route.split("/")[2]);
+    return { body: { eventName: "New test event", status: "pending" } };
   }
   if (route.endsWith("/all-event-expenses")) return { body: expenseRows };
-  if (route.endsWith("/accept-invitation")) {
+  if (route.endsWith("/approve")) {
     acceptedInvitations.add(route.split("/")[2]);
     return { body: "Invitation accepted successfully." };
   }
