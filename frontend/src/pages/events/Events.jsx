@@ -1,153 +1,140 @@
-import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { FiCalendar, FiUsers, FiArrowRight } from "react-icons/fi";
-import { FaUserPlus } from "react-icons/fa";
-import { eventService } from "../../services/eventService";
-import Navigation from "../../layouts/NavigationBar";
-import AddMemberModal from "../../pages/events/AddMemberModal"; // Adjust path as needed
-import loadingGif from "../../assets/loading.gif";
-
-const Events = () => {
-  const [selectedEvent, setSelectedEvent] = useState(null);
-
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["events"],
-    queryFn: eventService.getMyEvents,
-  });
-
-  const events = data?.items ?? [];
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">
-          <img
-            src={loadingGif}
-            alt="Loading..."
-            className="w-16 h-16 object-contain"
-          />
-        </div>
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-red-600">Failed to load events.</div>
-      </div>
-    );
-  }
-
+import { useState } from "react";
+import { useLocation, useOutletContext } from "react-router-dom";
+import { FiPlus, FiSearch, FiRefreshCw, FiZap } from "react-icons/fi";
+import { useEvents } from "../../features/events/hooks";
+import {
+  Page,
+  ApiError,
+  Skeleton,
+  Empty,
+  Success,
+} from "../../components/common/UI";
+import EventCard from "../../components/events/EventCard";
+export default function Events({ assistant = false }) {
+  const { createEvent } = useOutletContext();
+  const location = useLocation();
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const query = useEvents(page);
+  const events = query.data?.items || [];
+  const visible = events.filter((event) =>
+    `${event.name} ${event.description || ""}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
+  );
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <Navigation />
-
-      {/* Main */}
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        {/* Welcome */}
-        <div className="mb-10">
-          <h2 className="text-3xl font-bold text-gray-900">Welcome back 👋</h2>
-
-          <p className="mt-2 text-gray-500">
-            Here are the events you're participating in.
+    <Page>
+      <div className="page-heading">
+        <div>
+          <span className="eyebrow">
+            {assistant
+              ? "A LITTLE CLARITY GOES A LONG WAY"
+              : "PLANS WORTH SHARING"}
+          </span>
+          <h1>
+            {assistant
+              ? "Meet your expense assistant."
+              : "Your plans. Your people."}
+          </h1>
+          <p>
+            {assistant
+              ? "Choose an event, then open its AI Assistant to ask about expenses."
+              : "All your shared events, in one happy place."}
           </p>
         </div>
-
-        {/* Events */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Your Events</h3>
-
-              <p className="text-sm text-gray-500 mt-1">
-                {events.length} event{events.length !== 1 ? "s" : ""}
-              </p>
-            </div>
-          </div>
-
-          {events.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-12 text-center">
-              <FiCalendar className="w-12 h-12 mx-auto text-gray-400" />
-
-              <h3 className="mt-4 text-lg font-semibold text-gray-800">
-                No events yet
-              </h3>
-
-              <p className="mt-2 text-gray-500">
-                You haven't been enrolled in any events yet.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
-                <div
-                  key={event.id}
-                  className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-200"
-                >
-                  {/* Event Icon */}
-                  <div className="flex items-center justify-between mb-5">
-                    {/* Left Icon */}
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-                      <FiCalendar className="w-6 h-6 text-blue-600" />
-                    </div>
-
-                    {/* Right Icon - Opens Add Member Modal */}
-                    <button
-                      type="button"
-                      onClick={() => setSelectedEvent(event)}
-                      className="w-12 h-12 rounded-xl hover:bg-blue-50 flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
-                      title="Add Member"
-                    >
-                      <FaUserPlus className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {/* Event Name */}
-                  <h3 className="text-xl font-bold text-gray-900">
-                    {event.name}
-                  </h3>
-
-                  {/* Description */}
-                  {event.description && (
-                    <p className="text-gray-500 text-sm mt-2 line-clamp-2">
-                      {event.description}
-                    </p>
-                  )}
-
-                  {/* Event Information */}
-                  <div className="mt-6 space-y-3">
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <FiUsers className="w-5 h-5 text-gray-400" />
-
-                      <span className="text-sm">
-                        {event.memberCount ?? 0} members
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* View Event */}
-                  <button className="mt-6 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition">
-                    View Event
-                    <FiArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+        <button className="button primary" onClick={createEvent}>
+          <FiPlus /> Create event
+        </button>
+      </div>
+      {location.state?.success && <Success>{location.state.success}</Success>}
+      {assistant && (
+        <div className="info-banner">
+          <FiZap />
+          <p>
+            Every conversation stays with its event. Ask a question and Circlo
+            AI will use that event's expense data.
+          </p>
         </div>
-      </main>
-
-      {/* Add Member Modal */}
-      <AddMemberModal
-        isOpen={Boolean(selectedEvent)}
-        onClose={() => setSelectedEvent(null)}
-        eventName={selectedEvent?.name}
-        eventId={selectedEvent?.id}
-      />
-    </div>
+      )}
+      <div className="section-heading events-toolbar">
+        <h2>
+          My events{" "}
+          {query.data && (
+            <span className="count-pill">{query.data.totalCount}</span>
+          )}
+        </h2>
+        <div className="toolbar-actions">
+          <label className="search-input">
+            <FiSearch />
+            <span className="sr-only">Filter events on this page</span>
+            <input
+              placeholder="Search this page…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+          <button
+            className="icon-button"
+            aria-label="Refresh events"
+            disabled={query.isFetching}
+            onClick={() => query.refetch()}
+          >
+            <FiRefreshCw />
+          </button>
+        </div>
+      </div>
+      {query.isPending ? (
+        <Skeleton />
+      ) : query.isError ? (
+        <ApiError error={query.error} retry={() => query.refetch()} />
+      ) : visible.length ? (
+        <div className="event-grid">
+          {visible.map((event, i) => (
+            <EventCard key={event.id} event={event} index={i} />
+          ))}
+        </div>
+      ) : (
+        <Empty
+          title={
+            search
+              ? "No matching plans on this page."
+              : "Your next memory starts here."
+          }
+          action={
+            <button
+              className="button primary"
+              onClick={search ? () => setSearch("") : createEvent}
+            >
+              {search ? "Clear search" : "Create your first event"}
+            </button>
+          }
+        >
+          {search
+            ? "Try another name, clear your search, or browse another page."
+            : "Create an event, invite your people, and keep shared expenses simple."}
+        </Empty>
+      )}
+      {query.data?.totalPages > 1 && (
+        <div className="pagination">
+          <button
+            className="button secondary"
+            disabled={page === 1 || query.isFetching}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </button>
+          <span>
+            Page {page} of {query.data.totalPages}
+          </span>
+          <button
+            className="button secondary"
+            disabled={page >= query.data.totalPages || query.isFetching}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </Page>
   );
-};
-
-export default Events;
+}

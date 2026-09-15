@@ -1,4 +1,5 @@
-﻿using CircloApp.Domain.Entities;
+﻿using CircloApp.Application.Features.Events.DTOs;
+using CircloApp.Domain.Entities;
 
 namespace CircloApp.Application.Interfaces
 {
@@ -10,5 +11,6 @@ namespace CircloApp.Application.Interfaces
         Task<EventMember> GetEventMember(Guid eventID, Guid userId, CancellationToken cancellationToken);
         Task<int> GetEventParticipantCountAsync(Guid eventId, CancellationToken cancellationToken);
         Task<List<EventMember>> GetEventMembers(Guid eventID, CancellationToken cancellationToken);
+        Task<GetEventInviteResponse> GetEventInvitations(Guid userId, CancellationToken cancellationToken);
     }
 }

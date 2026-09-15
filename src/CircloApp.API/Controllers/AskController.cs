@@ -1,14 +1,15 @@
 ﻿using CircloApp.API.Models;
 using CircloApp.Application.Features.AI_II.Queries.AskAi;
-using CircloApp.Application.Interfaces;
 using CircloApp.Application.Interfaces.AI;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CircloApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AskController : ControllerBase
     {
         private readonly IMediator _mediator;

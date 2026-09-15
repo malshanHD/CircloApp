@@ -43,39 +43,56 @@ namespace CircloApp.Infrastructure.Repositories
                 }).ToListAsync(cancellationToken);
         }
 
-        public async Task<List<EventExpensesResponnse>> GetExpensesByIdsAsync(Guid eventId, List<Guid> expenseIds, CancellationToken cancellationToken = default)
+        public async Task<decimal?> GetEventTotalAsync(Guid eventId, CancellationToken cancellationToken = default)
         {
             return await _context.Expenses
+                    .AsNoTracking()
+                    .Where(ex => ex.EventId == eventId && ex.Type == TransactionType.Expense)
+                    .SumAsync(ex => ex.Amount, cancellationToken);
+        }
+
+        public async Task<List<EventExpensesResponnse>> GetExpensesByIdsAsync(Guid eventId, List<Guid> expenseIds, CancellationToken cancellationToken = default)
+        {
+            if (expenseIds.Count == 0)
+            {
+                return new List<EventExpensesResponnse>();
+            }
+
+            return await _context.Expenses
                         .AsNoTracking()
-                        .Where(x => x.EventId == eventId && expenseIds.Contains(x.Id))
+                        .Where(x => x.EventId == eventId && expenseIds.Contains(x.Id) && x.Type == TransactionType.Expense)
                         .Select(e => new EventExpensesResponnse
                         {
                             Id = e.Id,
                             Amount = e.Amount,
                             Description= e.Description,
                             DateAndTime= e.CreatedAt,
-                            PaidUser = e.PaidByUser.FirstName
+                            PaidUser = e.PaidByUser.FirstName,
+                            PaidUserId = e.PaidByUserId,
+                            PaidToUserId = e.PaidToUserId,
+                            Type = e.Type,
                         }).ToListAsync(cancellationToken);
         }
 
         public async Task<List<MemberSpendingDto>> GetMemberSpendings(Guid eventId, CancellationToken cancellationToken = default)
         {
-            return await _context.Expenses.AsNoTracking()
-                                          .Where(x => x.EventId == eventId)
-                                          .GroupBy(x => new
-                                          {
-                                              x.PaidToUserId,
-                                              x.PaidByUser.FirstName,
-                                              x.PaidByUser.LastName
-                                          })
-                                          .Select(group => new MemberSpendingDto
-                                          {
-                                              UserId = group.Key.PaidToUserId,
-                                              Name = group.Key.FirstName + " " + group.Key.LastName,
-                                              TotalPaid = group.Sum(x => x.Amount)
-                                          })
-                                          .OrderByDescending(x => x.TotalPaid)
-                                          .ToListAsync(cancellationToken);
+            return await _context.Expenses
+                    .AsNoTracking()
+                    .Where(ex => ex.EventId == eventId && ex.Type == TransactionType.Expense)
+                    .GroupBy(ex => new
+                    {
+                        ex.PaidByUserId,
+                        ex.PaidByUser.FirstName,
+                        ex.PaidByUser.LastName
+                    })
+                    .Select(group => new MemberSpendingDto
+                    {
+                        UserId = group.Key.PaidByUserId,
+                        Name = group.Key.FirstName + " " + group.Key.LastName,
+                        TotalPaid = group.Sum(ex => ex.Amount)
+                    })
+                    .OrderByDescending(dto => dto.TotalPaid)
+                    .ToListAsync(cancellationToken);
         }
 
         public async Task<List<GetUserAllExpensesResponse>> GetUserExpensesByEventAsync(Guid userId, CancellationToken cancellationToken)

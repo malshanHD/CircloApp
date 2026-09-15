@@ -1,12 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { auth } from "../utils/auth";
-
-const ProtectedRoute = () =>{
-     if (!auth.isAuthenticated()) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return <Outlet />
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+export default function ProtectedRoute() {
+  const { session } = useAuth();
+  const location = useLocation();
+  return session ? (
+    <Outlet />
+  ) : (
+    <Navigate
+      to="/login"
+      replace
+      state={{ from: location.pathname + location.search }}
+    />
+  );
 }
-
-export default ProtectedRoute;

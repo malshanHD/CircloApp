@@ -51,7 +51,7 @@ namespace CircloApp.Infrastructure.Repositories
 
         public async Task<PagedResponse<EventSummaryDto>> GetMyEventsAsync(Guid userId, int page, int pageSize, CancellationToken cancellationToken)
         {
-            var query = _context.EventMembers.AsNoTracking().Where(em => em.UserId == userId).Select(em => em.Event);
+            var query = _context.EventMembers.AsNoTracking().Where(em => em.UserId == userId && em.IsActive).Select(em => em.Event);
 
             var totalCount = await query.CountAsync(cancellationToken);
 

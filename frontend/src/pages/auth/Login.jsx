@@ -1,142 +1,85 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import React, { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
-import { FiLock, FiMail } from "react-icons/fi";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { FiArrowRight } from "react-icons/fi";
 import { authService } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
-import loadingGif from "../../assets/loading.gif";
-
-const Login = () => {
+import { useAuth } from "../../hooks/useAuth";
+import AuthLayout from "../../layouts/AuthLayout";
+import { Field, ApiError, Success } from "../../components/common/UI";
+export default function Login() {
+  const { session, login } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
-
-  const [payload, setPayload] = useState({});
-
-  const {
-    mutate,
-    isPending: isLoading,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: (payload) => authService("/auth/login", payload),
-    onSuccess: (response) => {
-      const token = response.data.accessToken;
-      localStorage.setItem("accessToken", token);
-      navigate("/dashboard");
-    },
-  });
-
-  const errorMessage = 
-  error?.response?.data?.message || 
-  error?.message || 
-  "An unexpected error occurred.";
-
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-
-  const onSubmit = (data) => {
-    console.log("form data", data);
-    setPayload(data);
-    mutate(data);
-  };
-
+  const requested = location.state?.from;
+  const destination =
+    typeof requested === "string" &&
+    requested.startsWith("/") &&
+    !requested.startsWith("//")
+      ? requested
+      : "/dashboard";
+  const mutation = useMutation({
+    mutationFn: (data) => authService("/auth/login", data),
+    onSuccess: (response) => {
+      if (!response.data?.accessToken)
+        throw new Error("The API did not return an access token.");
+      login(response.data);
+      navigate(destination, { replace: true });
+    },
+  });
+  if (session) return <Navigate to={destination} replace />;
   return (
-    <div className="min-h-screen flex bg-[#f8f6f5] items-center justify-center p-4">
-      <div className="flex max-w-xl w-full bg-white rounded-2xl overflow-hidden shadow-xl">
-        {/* Login Form */}
-        <div className="flex-1 p-8 sm:p-12 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">
-            Welcome Back
-          </h2>
-
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {/* Email Field */}
-            <div className="relative pt-2">
-              <label
-                htmlFor="email"
-                className="absolute -top-1 left-6 px-1 text-xs font-semibold text-gray-600 bg-white z-10"
-              >
-                Email Address
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <FiMail className="w-5 h-5" />
-                </span>
-                <input
-                  {...register("usernameOrEmail", {
-                    required: "Email is required",
-                  })}
-                  type="email"
-                  id="email"
-                  className="w-full border border-gray-300 rounded-full pl-12 pr-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Enter your email"
-                  autoComplete="off"
-                />
-                {errors.email && (
-                  <span className="font-bold text-red-700">
-                    {errors.email.message}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Password Field */}
-            <div className="relative pt-2">
-              <label
-                htmlFor="password"
-                className="absolute -top-1 left-6 px-1 text-xs font-semibold text-gray-600 bg-white z-10"
-              >
-                Password
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-                  <FiLock className="w-5 h-5" />
-                </span>
-                <input
-                  {...register("password", {
-                    required: "Password is required",
-                  })}
-                  type="password"
-                  id="password"
-                  className="w-full border border-gray-300 rounded-full pl-12 pr-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="Enter your password"
-                  autoComplete="off"
-                />
-                {errors.password && <span>{errors.email.password}</span>}
-              </div>
-            </div>
-
-            {isError && (
-              <p className="text-red-500 text-sm font-medium text-center mt-2">
-                {errorMessage}
-              </p>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-full transition duration-200 shadow-md hover:shadow-lg flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed h-12"
-            >
-              {!isLoading ? (
-                "Sign in"
-              ) : (
-                <img
-                  src={loadingGif}
-                  alt="Loading..."
-                  className="w-16 h-16 object-contain"
-                />
-              )}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <AuthLayout
+      title="Welcome back."
+      subtitle="Your next great plan starts here."
+    >
+      {location.state?.verified && (
+        <Success>Email verified. You're ready to sign in.</Success>
+      )}
+      <form
+        noValidate
+        onSubmit={handleSubmit((data) => {
+          if (!mutation.isPending) mutation.mutate(data);
+        })}
+        className="form-stack"
+      >
+        <Field
+          label="Email or username"
+          autoComplete="username"
+          placeholder="you@example.com"
+          registration={register("usernameOrEmail", {
+            required: "Enter your email or username.",
+          })}
+          error={errors.usernameOrEmail}
+        />
+        <Field
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Your password"
+          registration={register("password", {
+            required: "Enter your password.",
+          })}
+          error={errors.password}
+        />
+        <ApiError error={mutation.error} />
+        <button className="button primary wide" disabled={mutation.isPending}>
+          {mutation.isPending ? (
+            "Signing in…"
+          ) : (
+            <>
+              Sign in <FiArrowRight />
+            </>
+          )}
+        </button>
+      </form>
+      <p className="form-switch">
+        New to Circlo? <Link to="/register">Create an account</Link>
+      </p>
+    </AuthLayout>
   );
-};
-
-export default Login;
+}

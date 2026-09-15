@@ -1,8 +1,10 @@
-import api from "./api"
-
+import api from "./api";
 export const expensesService = {
-    get: async (path = "/") => {
-        const response = await api.get(path);
-        return response.data;
-    }
-}
+  getEventExpenses: async (eventId, signal) =>
+    (await api.get(`/expenses/${eventId}/all-event-expenses`, { signal })).data,
+  get: async (path = "/", signal) => (await api.get(path, { signal })).data,
+  getSummary: async (eventId, signal) =>
+    (await api.get(`/expenses/${eventId}`, { signal })).data,
+  add: async (eventId, data) =>
+    (await api.post(`/expenses/${eventId}/expenses`, data)).data,
+};

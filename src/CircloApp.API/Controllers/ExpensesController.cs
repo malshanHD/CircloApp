@@ -1,6 +1,7 @@
 ﻿using CircloApp.Application.Features.Events.Queries.GetEventDetails;
 using CircloApp.Application.Features.Expenses.Commands.AddExpenses;
 using CircloApp.Application.Features.Expenses.DTOs;
+using CircloApp.Application.Features.Expenses.Queries.GetEventAllExpenses;
 using CircloApp.Application.Features.Expenses.Queries.GetEventExpenses;
 using CircloApp.Application.Features.Expenses.Queries.GetUserExpenses;
 using CircloApp.Application.Features.Expenses.Queries.GetUserMonthlyExpenses;
@@ -32,6 +33,14 @@ namespace CircloApp.API.Controllers
         public async Task<IActionResult> GetEventExpenses(Guid eventId)
         {
             var result = await _mediator.Send(new GetEventExpensesQuery(eventId));
+
+            return Ok(result);
+        }
+
+        [HttpGet("{eventId:guid}/all-event-expenses")]
+        public async Task<IActionResult> GetEventAllExpenses(Guid eventId)
+        {
+            var result = await _mediator.Send(new GetEventAllExpensesQuery(eventId));
 
             return Ok(result);
         }

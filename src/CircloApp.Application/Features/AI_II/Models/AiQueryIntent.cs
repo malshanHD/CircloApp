@@ -2,7 +2,9 @@
 {
     public enum AiQueryIntent
     {
+        General,
         Semantic,
-        Calculation
+        SemanticCalculation,
+        StructuredCalculation
     }
 }

@@ -3,6 +3,7 @@ using CircloApp.Application.Features.Events.Commands.InviteAccept;
 using CircloApp.Application.Features.Events.Commands.InviteEvent;
 using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Features.Events.Queries.GetEventDetails;
+using CircloApp.Application.Features.Events.Queries.GetEventInvitations;
 using CircloApp.Application.Features.Events.Queries.GetMyEvents;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,13 @@ namespace CircloApp.API.Controllers
         public async Task<IActionResult> GetMyEvents([FromQuery] GetMyEventsQuery query)
         {
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpGet("event-invite-notifications")]
+        public async Task<IActionResult> GetEventNotifications()
+        {
+            var result = await _mediator.Send(new GetEventInvitationQuery());
             return Ok(result);
         }
 
