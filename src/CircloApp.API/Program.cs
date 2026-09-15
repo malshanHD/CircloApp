@@ -54,7 +54,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "https://gentle-sea-0da286d00.7.azurestaticapps.net"
+                "https://gentle-sea-0da286d00.7.azurestaticapps.net",
+                "https://icy-ocean-013d2b30f.5.azurestaticapps.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
