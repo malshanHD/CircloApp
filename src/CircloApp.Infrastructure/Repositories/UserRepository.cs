@@ -1,4 +1,4 @@
-﻿using CircloApp.Application.Features.Authentication.DTOs;
+using CircloApp.Application.Features.Authentication.DTOs;
 using CircloApp.Application.Interfaces;
 using CircloApp.Domain.Entities;
 using CircloApp.Infrastructure.Persistence;
@@ -8,6 +8,8 @@ namespace CircloApp.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
+        public Task<bool> ExistsByIdAsync(Guid userId, CancellationToken cancellationToken) =>
+            _context.Users.AnyAsync(u => u.Id == userId && !u.IsDeleted, cancellationToken);
         private readonly ApplicationDbContext _context;
         public UserRepository(ApplicationDbContext context)
         {

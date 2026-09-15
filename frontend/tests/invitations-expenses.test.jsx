@@ -14,6 +14,7 @@ import api from "../src/services/api";
 import {
   eventId,
   newEventId,
+  userId,
   fixture,
   resetFixtureState,
   token,
@@ -56,8 +57,8 @@ afterEach(() => {
   client?.clear();
   vi.restoreAllMocks();
 });
-function mount(path = "/events") {
-  localStorage.setItem("accessToken", token());
+function mount(path = "/events", authenticated = true) {
+  if (authenticated) localStorage.setItem("accessToken", token());
   window.history.replaceState({}, "", path);
   client = new QueryClient({
     defaultOptions: {
@@ -76,26 +77,27 @@ describe("invitation notifications", () => {
     mount();
     const user = userEvent.setup();
     await user.click(
-      await screen.findByRole("button", { name: "Invitations, 2 pending" }),
+      await screen.findByRole("button", { name: "Join requests, 2 pending" }),
     );
     const dialog = screen.getByRole("dialog");
     expect(within(dialog).getByText("Malshan Perera")).toBeTruthy();
     expect(within(dialog).getByText("New test event")).toBeTruthy();
     await user.click(
       within(dialog).getByRole("button", {
-        name: "Accept invitation to New test event",
+        name: "Approve Malshan Perera for New test event",
       }),
     );
-    await screen.findByText("You've joined New test event.");
+    await screen.findByText("Malshan Perera has been approved.");
     expect(window.location.pathname).toBe(`/events/${newEventId}`);
-    await screen.findByRole("button", { name: "Invitations, 1 pending" });
-    const request = requests.find((r) => r.url.endsWith("/accept-invitation"));
-    expect(request.url).toBe(`/events/${newEventId}/accept-invitation`);
+    await screen.findByRole("button", { name: "Join requests, 1 pending" });
+    const request = requests.find((r) => r.url.endsWith("/approve"));
+    expect(request.url).toBe(
+      `/events/${newEventId}/join-requests/${userId}/approve`,
+    );
     expect(request.method).toBe("post");
     expect(request.authorization).toMatch(/^Bearer /);
     expect(
-      requests.filter((r) => r.url === "/events/event-invite-notifications")
-        .length,
+      requests.filter((r) => r.url === "/events/join-requests").length,
     ).toBeGreaterThan(1);
     expect(
       client
@@ -106,7 +108,7 @@ describe("invitation notifications", () => {
   it("shows acceptance failure inline, keeps the count, and prevents duplicate submissions", async () => {
     let release;
     override = (config) =>
-      config.url.endsWith("/accept-invitation")
+      config.url.endsWith("/approve")
         ? new Promise((resolve) => {
             release = () =>
               resolve({
@@ -118,43 +120,39 @@ describe("invitation notifications", () => {
     mount();
     const user = userEvent.setup();
     await user.click(
-      await screen.findByRole("button", { name: "Invitations, 2 pending" }),
+      await screen.findByRole("button", { name: "Join requests, 2 pending" }),
     );
     const button = screen.getByRole("button", {
-      name: "Accept invitation to New test event",
+      name: "Approve Malshan Perera for New test event",
     });
     await user.dblClick(button);
     expect(button.disabled).toBe(true);
-    expect(
-      requests.filter((r) => r.url.endsWith("/accept-invitation")),
-    ).toHaveLength(1);
+    expect(requests.filter((r) => r.url.endsWith("/approve"))).toHaveLength(1);
     release();
     await screen.findByText("No invitation found for this event.");
-    expect(screen.getByText("2 invitations waiting for you.")).toBeTruthy();
+    expect(screen.getByText("2 requests waiting for approval.")).toBeTruthy();
     expect(window.location.pathname).toBe("/events");
   });
   it("shows empty and error states without presenting failures as zero invitations", async () => {
     override = (config) =>
-      config.url === "/events/event-invite-notifications"
-        ? { body: { invitationsCount: 0, inviteDetails: [] } }
-        : undefined;
+      config.url === "/events/join-requests" ? { body: [] } : undefined;
     mount();
     const user = userEvent.setup();
     await user.click(
-      await screen.findByRole("button", { name: "Invitations, 0 pending" }),
+      await screen.findByRole("button", { name: "Join requests, 0 pending" }),
     );
     await screen.findByText("You're all caught up.");
     cleanup();
     client.clear();
     override = (config) =>
-      config.url === "/events/event-invite-notifications"
+      config.url === "/events/join-requests"
         ? { status: 500, body: { message: "Invitations could not be loaded." } }
         : undefined;
     mount();
     await user.click(
       await screen.findByRole(
         "button",
-        { name: "Invitations, unable to refresh" },
+        { name: "Join requests, unable to refresh" },
         { timeout: 4000 },
       ),
     );
@@ -239,4 +237,122 @@ describe("event expense ledger", () => {
     expect(screen.queryByText("No expenses yet.")).toBeNull();
     expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
   });
+});
+
+describe("shared event links", () => {
+  it("copies the current event link and offers WhatsApp without username search", async () => {
+    mount("/events/" + eventId);
+    const user = userEvent.setup();
+    const clipboard = vi
+      .spyOn(navigator.clipboard, "writeText")
+      .mockResolvedValue();
+    await user.click(
+      await screen.findByRole("button", { name: "Share event link" }),
+    );
+    const link = window.location.origin + "/accept-invite?eventId=" + eventId;
+    expect(screen.getByLabelText("Event link").value).toBe(link);
+    await user.click(screen.getByRole("button", { name: "Copy link" }));
+    expect(clipboard).toHaveBeenCalledWith(link);
+    await screen.findByText("Link copied. Paste it into WhatsApp or any chat.");
+    expect(screen.getByRole("link", { name: "WhatsApp" }).href).toContain(
+      encodeURIComponent(link),
+    );
+    expect(screen.queryByLabelText("Search by username")).toBeNull();
+    expect(requests.some((r) => r.url.startsWith("/users/"))).toBe(false);
+  });
+  it("requires login and preserves the shared link destination", async () => {
+    mount("/accept-invite?eventId=" + newEventId, false);
+    await screen.findByRole("heading", { name: "Welcome back." });
+    const user = userEvent.setup();
+    await user.type(
+      screen.getByLabelText("Email or username"),
+      "jamie@example.test",
+    );
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Sign in" }));
+    await screen.findByText("Your request is waiting for admin approval.");
+    expect(window.location.pathname + window.location.search).toBe(
+      "/accept-invite?eventId=" + newEventId,
+    );
+  });
+  it("requests once, waits for approval across reloads, then opens the approved event", async () => {
+    mount("/accept-invite?eventId=" + newEventId);
+    const user = userEvent.setup();
+
+    await screen.findByText("Your request is waiting for admin approval.");
+    expect(screen.queryByRole("link", { name: "Open event" })).toBeNull();
+    expect(
+      requests.filter(
+        (r) => r.method === "post" && r.url.endsWith("/join-requests"),
+      ),
+    ).toHaveLength(1);
+    cleanup();
+    client.clear();
+    mount("/accept-invite?eventId=" + newEventId);
+    await screen.findByText("Your request is waiting for admin approval.");
+    override = (config) =>
+      config.url.endsWith("/join-request")
+        ? { body: { eventName: "New test event", status: "active" } }
+        : undefined;
+    await user.click(
+      screen.getByRole("button", { name: "Check approval status" }),
+    );
+    expect(
+      (await screen.findByRole("link", { name: "Open event" })).getAttribute(
+        "href",
+      ),
+    ).toBe("/events/" + newEventId);
+  });
+  it("does not offer sharing to non-admins", async () => {
+    override = (config) =>
+      config.url === "/events/" + eventId
+        ? {
+            body: {
+              id: eventId,
+              name: "Trip",
+              isAdmin: false,
+              members: [],
+              createdAt: "2026-09-15",
+            },
+          }
+        : undefined;
+    mount("/events/" + eventId);
+    await screen.findByRole("heading", { name: "Trip" });
+    expect(
+      screen.queryByRole("button", { name: "Share event link" }),
+    ).toBeNull();
+  });
+  it("shows an invalid event response without creating a request", async () => {
+    override = (config) =>
+      config.url.endsWith("/join-request")
+        ? { status: 400, body: { message: "Event not found." } }
+        : undefined;
+    mount("/accept-invite?eventId=" + newEventId);
+    await screen.findByText("Event not found.");
+    expect(
+      screen.queryByRole("button", { name: "Request to join" }),
+    ).toBeNull();
+    expect(requests.some((r) => r.method === "post")).toBe(false);
+  });
+});
+
+it("retries a failed automatic join without silently activating the user", async () => {
+  let attempts = 0;
+  override = (config) =>
+    config.method === "post" &&
+    config.url.endsWith("/join-requests") &&
+    attempts++ === 0
+      ? {
+          status: 400,
+          body: { message: "An existing Circlo account is required." },
+        }
+      : undefined;
+  mount("/accept-invite?eventId=" + newEventId);
+  await screen.findByText("An existing Circlo account is required.");
+  expect(requests.filter((r) => r.method === "post")).toHaveLength(1);
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "Retry join request" }));
+  await screen.findByText("Your request is waiting for admin approval.");
+  expect(requests.filter((r) => r.method === "post")).toHaveLength(2);
+  expect(screen.queryByRole("link", { name: "Open event" })).toBeNull();
 });

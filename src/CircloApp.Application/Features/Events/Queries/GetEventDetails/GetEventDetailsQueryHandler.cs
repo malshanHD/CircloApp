@@ -1,4 +1,4 @@
-﻿using CircloApp.Application.Exceptions;
+using CircloApp.Application.Exceptions;
 using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Interfaces;
 using MediatR;
@@ -27,6 +27,7 @@ namespace CircloApp.Application.Features.Events.Queries.GetEventDetails
             return new EventDetailsDto
             {
                 Id = eventDetails.Id,
+                IsAdmin = eventDetails.IsAdmin,
                 Name = eventDetails.Name,
                 Description = eventDetails.Description,
                 CreatedAt = eventDetails.CreatedAt,

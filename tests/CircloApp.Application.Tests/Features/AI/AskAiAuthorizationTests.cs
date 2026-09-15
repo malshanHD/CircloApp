@@ -27,7 +27,7 @@ public class AskAiAuthorizationTests
         var search = new Mock<IExpenseSearchService>(MockBehavior.Strict);
         var intent = new Mock<IAiIntentService>(MockBehavior.Strict);
         var relevance = new Mock<IExpenseRelevanceService>(MockBehavior.Strict);
-        var handler = new AskAiQueryHandler(chat.Object, search.Object, intent.Object, relevance.Object, members.Object, currentUser.Object);
+        var handler = new AskAiQueryHandler(chat.Object, search.Object, intent.Object, relevance.Object, members.Object, currentUser.Object, Mock.Of<IExpensesService>());
 
         var error = await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(new AskAiQuery(eventId, "Summarize"), CancellationToken.None));
         Assert.Equal("Event not found", error.Message);
@@ -51,10 +51,10 @@ public class AskAiAuthorizationTests
         var search = new Mock<IExpenseSearchService>();
         search.Setup(x => x.SearchExpensesAsync(eventId, "Summarize", It.IsAny<CancellationToken>())).ReturnsAsync(Array.Empty<ExpenseSearchResult>());
         var intent = new Mock<IAiIntentService>();
-        intent.Setup(x => x.DetermineIntentAsync("Summarize", It.IsAny<CancellationToken>())).ReturnsAsync(AiQueryIntent.Semantic);
-        var handler = new AskAiQueryHandler(chat.Object, search.Object, intent.Object, Mock.Of<IExpenseRelevanceService>(), members.Object, currentUser.Object);
+        intent.Setup(x => x.AnalyzeAsync("Summarize", It.IsAny<CancellationToken>())).ReturnsAsync(new AiQueryAnalysis(AiQueryIntent.Semantic, default));
+        var handler = new AskAiQueryHandler(chat.Object, search.Object, intent.Object, Mock.Of<IExpenseRelevanceService>(), members.Object, currentUser.Object, Mock.Of<IExpensesService>());
 
-        Assert.Equal("An event summary", await handler.Handle(new AskAiQuery(eventId, "Summarize"), CancellationToken.None));
+        Assert.Equal("I couldn't find any expenses clearly related to that question.", await handler.Handle(new AskAiQuery(eventId, "Summarize"), CancellationToken.None));
         search.Verify(x => x.SearchExpensesAsync(eventId, "Summarize", It.IsAny<CancellationToken>()), Times.Once);
         search.VerifyNoOtherCalls();
     }

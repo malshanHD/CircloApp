@@ -1,4 +1,4 @@
-﻿using CircloApp.Application.Features.Events.DTOs;
+using CircloApp.Application.Features.Events.DTOs;
 using CircloApp.Application.Interfaces;
 using CircloApp.Application.QueryModels.Events;
 using CircloApp.Domain.Entities;
@@ -31,15 +31,16 @@ namespace CircloApp.Infrastructure.Repositories
 
         public async Task<EventSummaryModel?> GetEventDetailsAsync(Guid eventId, Guid currentUser, CancellationToken cancellationToken)
         {
-            return await _context.BudgetEvents.AsNoTracking().Where(e => e.Id == eventId && e.Members.Any(m => m.UserId == currentUser && m.IsActive))
+            return await _context.BudgetEvents.AsNoTracking().Where(e => e.Id == eventId && !e.IsDeleted && e.Members.Any(m => m.UserId == currentUser && m.IsActive && !m.IsDeleted))
                 .Select(e => new EventSummaryModel
                 {
                     Id = e.Id,
+                    IsAdmin = e.CreatedByUserId == currentUser,
                     Name = e.Name,
                     Description = e.Description,
                     CreatedAt = e.CreatedAt,
 
-                    Members = e.Members.Where(m => m.IsActive).Select(m => new EventMemberModel
+                    Members = e.Members.Where(m => m.IsActive && !m.IsDeleted).Select(m => new EventMemberModel
                     {
                         UserId = m.UserId,
                         Username = m.User.Username,

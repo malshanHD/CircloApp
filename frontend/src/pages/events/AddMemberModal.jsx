@@ -1,103 +1,75 @@
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { userService } from "../../services/userService";
-import { useInvite } from "../../features/events/hooks";
-import { Modal, ApiError, Success } from "../../components/common/UI";
+import { useState } from "react";
+import { Modal } from "../../components/common/UI";
 export default function AddMemberModal({
   isOpen,
   onClose,
   eventName,
   eventId,
 }) {
-  const [search, setSearch] = useState("");
-  const [term, setTerm] = useState("");
-  const [selected, setSelected] = useState("");
-  const [success, setSuccess] = useState(false);
-  useEffect(() => {
-    const timer = setTimeout(() => setTerm(search.trim()), 300);
-    return () => clearTimeout(timer);
-  }, [search]);
-  const query = useQuery({
-    queryKey: ["searchUsers", term],
-    queryFn: ({ signal }) => userService.searchUsers(term, signal),
-    enabled: isOpen && term.length >= 2,
-  });
-  const mutation = useInvite(eventId, () => setSuccess(true));
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const link = `${window.location.origin}/accept-invite?eventId=${encodeURIComponent(eventId)}`;
+  const text = `Join ${eventName} on Circlo: ${link}`;
   if (!isOpen) return null;
+  async function copy() {
+    setBusy(true);
+    try {
+      await navigator.clipboard.writeText(link);
+      setMessage("Link copied. Paste it into WhatsApp or any chat.");
+    } catch {
+      setMessage("Copy the link from the field above.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function share() {
+    setBusy(true);
+    try {
+      await navigator.share({ title: eventName, text, url: link });
+    } catch (error) {
+      if (error.name !== "AbortError")
+        setMessage("Sharing is unavailable. Copy the link instead.");
+    } finally {
+      setBusy(false);
+    }
+  }
   return (
-    <Modal
-      title="Bring your people."
-      onClose={onClose}
-      busy={mutation.isPending}
-    >
-      <p className="muted small">Invite a member to {eventName}.</p>
-      {success ? (
-        <>
-          <Success>
-            Invitation created. Your friend can join after accepting it.
-          </Success>
-          <button className="button primary wide" onClick={onClose}>
-            Done
-          </button>
-        </>
-      ) : (
-        <form
-          className="form-stack"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (selected && !mutation.isPending)
-              mutation.mutate({ username: selected, role: "member" });
-          }}
+    <Modal title="Share your event." onClose={onClose} busy={busy}>
+      <p>Send this link to the people joining {eventName}.</p>
+      <p className="muted small">
+        They must sign in to an existing Circlo account and request to join. You
+        approve each request before they can access the event.
+      </p>
+      <div className="field">
+        <label htmlFor="event-invite-link">Event link</label>
+        <input
+          id="event-invite-link"
+          readOnly
+          value={link}
+          onFocus={(e) => e.target.select()}
+        />
+      </div>
+      <p role="status" className="small">
+        {message}
+      </p>
+      <div className="form-actions">
+        <button className="button primary" disabled={busy} onClick={copy}>
+          Copy link
+        </button>
+        <a
+          className="button secondary"
+          href={`https://wa.me/?text=${encodeURIComponent(text)}`}
+          target="_blank"
+          rel="noreferrer"
         >
-          <div className="field">
-            <label htmlFor="member-search">Search by username</label>
-            <input
-              id="member-search"
-              value={search}
-              disabled={mutation.isPending}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setSelected("");
-              }}
-              placeholder="Enter at least 2 characters"
-            />
-          </div>
-          <div className="member-results">
-            {term.length < 2 ? (
-              <p className="muted small">
-                Find someone who's already on Circlo.
-              </p>
-            ) : query.isFetching || search.trim() !== term ? (
-              <p role="status">Finding your people…</p>
-            ) : query.isError ? (
-              <ApiError error={query.error} retry={() => query.refetch()} />
-            ) : !query.data?.length ? (
-              <p>No matching usernames.</p>
-            ) : (
-              query.data.map((user) => (
-                <label className="member-option" key={user.username}>
-                  <input
-                    type="radio"
-                    name="member"
-                    value={user.username}
-                    checked={selected === user.username}
-                    disabled={mutation.isPending}
-                    onChange={() => setSelected(user.username)}
-                  />
-                  <span>@{user.username}</span>
-                </label>
-              ))
-            )}
-          </div>
-          <ApiError error={mutation.error} />
-          <button
-            className="button primary"
-            disabled={!selected || mutation.isPending}
-          >
-            {mutation.isPending ? "Inviting…" : "Send invitation"}
+          WhatsApp
+        </a>
+        {typeof navigator.share === "function" && (
+          <button className="button secondary" disabled={busy} onClick={share}>
+            Share…
           </button>
-        </form>
-      )}
+        )}
+      </div>
     </Modal>
   );
 }
