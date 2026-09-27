@@ -16,6 +16,16 @@ namespace CircloApp.Infrastructure.Repositories
             _context = context;
         }
 
+        public Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken) =>
+            _context.Users.AsTracking().Include(u => u.ExternalLogins)
+                .SingleOrDefaultAsync(u => u.Email == email, cancellationToken);
+
+        public async Task AddExternalLoginAsync(UserExternalLogin externalLogin, CancellationToken cancellationToken)
+        {
+            // A preassigned GUID discovered through a navigation can otherwise be marked Modified.
+            await _context.UserExternalLogins.AddAsync(externalLogin, cancellationToken);
+        }
+
         public async Task AddAsync(User user, CancellationToken cancellationToken)
         {
             await _context.AddAsync(user, cancellationToken);
@@ -33,7 +43,7 @@ namespace CircloApp.Infrastructure.Repositories
 
         public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Username == usernameOrEmail || u.Email == usernameOrEmail);
+            return await _context.Users.AsTracking().FirstOrDefaultAsync(u => u.Username == usernameOrEmail || u.Email == usernameOrEmail);
         }
 
         public async Task<List<GetUserResponse>> SearchUserByUsername(string username, CancellationToken cancellationToken)
@@ -48,7 +58,8 @@ namespace CircloApp.Infrastructure.Repositories
 
         public async Task<User?> GetByExternalLoginAsync(string provider, string providerSubject, CancellationToken cancellationToken = default)
         {
-            return await _context.UserExternalLogins.Where(x => x.Provider == provider && x.ProviderSubject == providerSubject).Select(x => x.User).SingleOrDefaultAsync(cancellationToken);
+            return await _context.Users.AsTracking().Include(u => u.ExternalLogins)
+                .SingleOrDefaultAsync(u => u.ExternalLogins.Any(x => x.Provider == provider && x.ProviderSubject == providerSubject), cancellationToken);
         }
     }
 }

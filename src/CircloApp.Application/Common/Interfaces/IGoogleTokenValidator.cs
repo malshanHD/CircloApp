@@ -2,6 +2,6 @@
 {
     public interface IGoogleTokenValidator
     {
-        Task<GoogleUserInfo> ValidateAsync(string idToken, CancellationToken cancellationToken = default);
+        Task<GoogleUserInfo?> ValidateAsync(string idToken, CancellationToken cancellationToken = default);
     }
 }

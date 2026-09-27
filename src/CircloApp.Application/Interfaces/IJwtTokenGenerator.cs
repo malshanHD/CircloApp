@@ -2,8 +2,10 @@
 
 namespace CircloApp.Application.Interfaces
 {
+    public sealed record GeneratedAccessToken(string AccessToken, DateTime ExpiresAt);
+
     public interface IJwtTokenGenerator
     {
-        string GenerateToken(User user);
+        GeneratedAccessToken GenerateToken(User user);
     }
 }

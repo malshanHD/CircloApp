@@ -41,7 +41,7 @@ namespace CircloApp.Application.Tests.Features.Authentication.Commands.Login
 
             _jwtTokenGeneratorMock
                 .Setup(x => x.GenerateToken(user))
-                .Returns("valid-access-token");
+                .Returns(new GeneratedAccessToken("valid-access-token", _utcNow.AddMinutes(37)));
 
             _refreshTokenGeneratorMock
                 .Setup(x => x.Generate())
@@ -59,7 +59,7 @@ namespace CircloApp.Application.Tests.Features.Authentication.Commands.Login
             Assert.Equal(user.Email, result.Email);
             Assert.Equal("valid-access-token", result.AccessToken);
             Assert.Equal("valid-refresh-token", result.RefreshToken);
-            Assert.Equal(_utcNow.AddMinutes(20), result.ExpiresAt);
+            Assert.Equal(_utcNow.AddMinutes(37), result.ExpiresAt);
 
             // Assert - State & Side Effects
             Assert.Equal("valid-refresh-token", user.RefreshToken);

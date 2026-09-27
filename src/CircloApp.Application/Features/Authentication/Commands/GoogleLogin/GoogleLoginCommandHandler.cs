@@ -36,52 +36,79 @@ namespace CircloApp.Application.Features.Authentication.Commands.GoogleLogin
         {
             var googleUser = await _googleTokenValidator.ValidateAsync(request.Request.IdToken, cancellationToken);
 
-            if(googleUser is null)
+            if (googleUser is null || string.IsNullOrWhiteSpace(googleUser.GoogleSubject) || string.IsNullOrWhiteSpace(googleUser.Email))
             {
-                throw new BadRequestException("Invalid username/email or password.");
+                throw new BadRequestException("Invalid Google credential.");
             }
 
             var user = await _userRepository.GetByExternalLoginAsync(GoogleProvider, googleUser.GoogleSubject, cancellationToken);
 
             if (user is null)
             {
-                user = await _userRepository.GetByUsernameOrEmailAsync(googleUser.Email);
+                user = await _userRepository.GetByEmailAsync(googleUser.Email, cancellationToken);
+
                 if (user is not null)
                 {
                     if (!googleUser.IsAuthoritativeEmail)
                     {
-                        throw new BadRequestException("An account already exists with this email." + "Sign in normally before linking Google");
+                        throw new BadRequestException(
+                            "An account already exists with this email. " +
+                            "Sign in normally before linking Google.");
                     }
-                    user.EmailVerified = true;
-                    user.AddExternalLogin(GoogleProvider, googleUser.Email);
-                }
 
+                    if (user.IsDeleted) throw new BadRequestException("This account is not available.");
+                    user.EmailVerified = true;
+
+                    // Repair rows created by the previous email-as-key bug only after authoritative email proof.
+                    var legacyLogin = user.ExternalLogins.FirstOrDefault(x => x.Provider == GoogleProvider &&
+                        string.Equals(x.ProviderSubject, googleUser.Email, StringComparison.OrdinalIgnoreCase));
+                    if (legacyLogin is not null)
+                    {
+                        legacyLogin.ProviderSubject = googleUser.GoogleSubject;
+                    }
+                    else
+                    {
+                        var externalLogin = user.AddExternalLogin(GoogleProvider, googleUser.GoogleSubject);
+                        if (externalLogin is not null)
+                            await _userRepository.AddExternalLoginAsync(externalLogin, cancellationToken);
+                    }
+                }
                 else
                 {
                     user = CreateGoogleUser(googleUser);
+
                     user.AddExternalLogin(GoogleProvider, googleUser.GoogleSubject);
+
                     await _userRepository.AddAsync(user, cancellationToken);
                 }
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
+            if (user.IsDeleted) throw new BadRequestException("This account is not available.");
+            if (string.Equals(user.Email, googleUser.Email, StringComparison.OrdinalIgnoreCase))
+                user.EmailVerified = true;
+
             var now = _dateProvider.UtcNow;
-            var accessToken = _jwtTokenGenerator.GenerateToken(user);
             var refreshToken = _refreshTokenGenerator.Generate();
 
-            user.RefreshToken = accessToken;
+            // Store the actual refresh token.
+            user.RefreshToken = refreshToken;
             user.RefreshTokenExpiryTime = now.AddDays(7);
 
+            // Save everything once:
+            // new user, external login and refresh token.
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            // For a new user, generate JWT after SaveChanges so its ID exists.
+            var accessToken = _jwtTokenGenerator.GenerateToken(user);
 
             return new LoginResponse
             {
                 UserId = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                AccessToken = accessToken,
+                AccessToken = accessToken.AccessToken,
                 RefreshToken = refreshToken,
-                ExpiresAt = now.AddMinutes(60)
+                ExpiresAt = accessToken.ExpiresAt
             };
         }
 

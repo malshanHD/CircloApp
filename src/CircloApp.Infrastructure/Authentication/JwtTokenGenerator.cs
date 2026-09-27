@@ -15,7 +15,7 @@ namespace CircloApp.Infrastructure.Authentication
         {
             _jwtSettings = jwtSettings.Value;
         }
-        public string GenerateToken(User user)
+        public GeneratedAccessToken GenerateToken(User user)
         {
             var claims = new List<Claim>
             {
@@ -35,14 +35,16 @@ namespace CircloApp.Infrastructure.Authentication
 
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                .UtcDateTime.AddMinutes(_jwtSettings.ExpiryMinutes);
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+                expires: expiresAt,
                 signingCredentials: credentials);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new GeneratedAccessToken(new JwtSecurityTokenHandler().WriteToken(token), expiresAt);
         }
     }
 }

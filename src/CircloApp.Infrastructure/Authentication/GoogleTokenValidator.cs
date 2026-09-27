@@ -8,9 +8,9 @@ namespace CircloApp.Infrastructure.Authentication
     {
         private readonly string _clientId = options.Value.ClientId;
 
-        public async Task<GoogleUserInfo> ValidateAsync(string idToken, CancellationToken cancellationToken = default)
+        public async Task<GoogleUserInfo?> ValidateAsync(string idToken, CancellationToken cancellationToken = default)
         {
-            if (!string.IsNullOrEmpty(idToken))
+            if (string.IsNullOrWhiteSpace(idToken))
             {
                 return null;
             }

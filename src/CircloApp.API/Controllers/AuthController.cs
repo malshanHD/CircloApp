@@ -51,7 +51,7 @@ namespace CircloApp.API.Controllers
         public async Task<ActionResult<LoginResponse>> GoogleLogin([FromBody] GoogleLoginRequest request, CancellationToken cancellationToken)
         {
             var response = await _mediator.Send(new GoogleLoginCommand(request), cancellationToken);
-            return Ok(response);
+            return Ok(ApiResponse<LoginResponse>.SuccessResponse(response, "User logged in successfully."));
         }
     }
 }

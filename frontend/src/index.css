@@ -2029,3 +2029,38 @@ textarea::placeholder {
 .modal:not(.nav-drawer) {
   margin: auto;
 }
+
+/* Login-only motion; shared registration and OTP layouts retain their behavior. */
+.login-layout .auth-form { animation: login-arrive 420ms ease-out both; }
+.login-layout .brand-mark { animation: login-logo 850ms ease-out both; }
+.login-layout .field { transition: transform 180ms ease; }
+.login-layout .field:focus-within { transform: translateY(-2px); }
+.login-layout .field label { transition: color 180ms ease; }
+.login-layout .field:focus-within label { color: var(--primary); }
+.login-layout input { transition: border-color 180ms ease, box-shadow 180ms ease; }
+.login-layout input:focus { box-shadow: 0 0 0 4px #7659cd16; }
+.login-layout .button { transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+.login-layout .button:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 7px 18px #6546b424; }
+.login-layout .button:not(:disabled):active { transform: translateY(0) scale(.985); }
+.login-interaction { position: relative; }
+.login-fields { min-width: 0; margin: 0; }
+.auth-divider { display: flex; align-items: center; gap: 14px; margin: 24px 0; color: var(--muted); font-size: .75rem; }
+.auth-divider::before, .auth-divider::after { content: ""; height: 1px; background: var(--border); flex: 1; animation: login-divider 500ms 100ms ease-out both; }
+.auth-divider::before { transform-origin: right; }
+.auth-divider::after { transform-origin: left; }
+.google-login-container { display: flex; justify-content: center; min-height: 40px; }
+.google-login-container[inert] { opacity: .55; }
+.google-status { color: var(--muted); font-size: .8rem; text-align: center; margin: 12px 0 0; }
+.login-spinner { width: 17px; height: 17px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: login-spin 800ms linear infinite; }
+.login-success { position: absolute; inset: -8px; z-index: 2; display: flex; flex-direction: column; gap: 10px; align-items: center; justify-content: center; background: #faf8fff5; border-radius: 20px; color: #40325e; animation: login-arrive 180ms ease-out both; }
+.login-success strong { font-size: 1.5rem; }
+.login-success > span:last-child { font-size: .88rem; }
+.login-check { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #ece4ff; color: var(--primary); font-size: 1.8rem; animation: login-logo 350ms ease-out both; }
+.startup-error { max-width: 620px; margin: 10vh auto; padding: 28px; }
+@keyframes login-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes login-logo { from { opacity: .4; transform: scale(.92) rotate(-5deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes login-divider { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes login-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .login-layout .field:focus-within, .login-layout .button:not(:disabled):hover, .login-layout .button:not(:disabled):active { transform: none; }
+}

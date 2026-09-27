@@ -30,7 +30,8 @@ namespace CircloApp.Infrastructure.Persistence
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.Id = Guid.NewGuid();
+                    if (entry.Entity.Id == Guid.Empty)
+                        entry.Entity.Id = Guid.NewGuid();
                     entry.Entity.CreatedAt = DateTime.UtcNow;
                 }
                 else if (entry.State == EntityState.Modified)

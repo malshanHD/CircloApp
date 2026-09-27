@@ -20,20 +20,25 @@ namespace CircloApp.Domain.Entities
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
         public ICollection<UserExternalLogin> ExternalLogins { get; private set; } = new List<UserExternalLogin>();
 
-        public void AddExternalLogin(string provider, string providerSubject)
+        public UserExternalLogin? AddExternalLogin(string provider, string providerSubject)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(provider);
+            ArgumentException.ThrowIfNullOrWhiteSpace(providerSubject);
             var alreadyLinked = ExternalLogins.Any(x => x.Provider == provider && x.ProviderSubject == providerSubject);
             if (alreadyLinked)
             {
-                return;
+                return null;
             }
 
-            ExternalLogins.Add(new UserExternalLogin
+            var externalLogin = new UserExternalLogin
             {
                 Provider = provider,
                 ProviderSubject = providerSubject,
+                UserId = Id,
                 User = this
-            });
+            };
+            ExternalLogins.Add(externalLogin);
+            return externalLogin;
         }
     }
 }
