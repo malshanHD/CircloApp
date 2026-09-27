@@ -84,6 +84,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Lightweight liveness probe for frontend cold-start waiting; no authentication required.
+app.MapGet("/health", (HttpContext context) =>
+{
+    context.Response.Headers.CacheControl = "no-store";
+    return Results.Ok(new { status = "Healthy" });
+}).AllowAnonymous();
+
 app.MapGet("/", () => Results.Ok(new
 {
     Status = "Healthy",
