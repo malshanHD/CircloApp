@@ -1,7 +1,15 @@
+import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { useMemo } from "react";
+import { useTheme } from "../../context/ThemeContext";
 import { BarChart, PieChart } from "@mui/x-charts";
 import { useReducedMotion } from "framer-motion";
 import { formatAmount } from "../../utils/format";
-export default function ExpenseCharts({ data, kind }) {
+export default function ExpenseCharts(props) {
+  const { theme } = useTheme();
+  const chartTheme = useMemo(() => createTheme({ palette: { mode: theme } }), [theme]);
+  return <ThemeProvider theme={chartTheme}><Charts {...props} /></ThemeProvider>;
+}
+function Charts({ data, kind }) {
   const reduced = useReducedMotion();
   if (kind === "monthly")
     return (

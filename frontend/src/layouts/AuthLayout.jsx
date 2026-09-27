@@ -1,5 +1,6 @@
 import { Brand, Page } from "../components/common/UI";
 import { FiArrowUpRight, FiUsers, FiZap, FiCheck } from "react-icons/fi";
+import ThemeToggle from "../components/ThemeToggle";
 export default function AuthLayout({ title, subtitle, children, className = "" }) {
   return (
     <div className={`auth-layout ${className}`}>
@@ -40,6 +41,7 @@ export default function AuthLayout({ title, subtitle, children, className = "" }
         </p>
       </aside>
       <main className="auth-main">
+        <div className="auth-theme-toggle"><ThemeToggle /></div>
         <div className="mobile-brand">
           <Brand />
         </div>
