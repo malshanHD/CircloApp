@@ -1,8 +1,8 @@
 import { Brand, Page } from "../components/common/UI";
 import { FiArrowUpRight, FiUsers, FiZap, FiCheck } from "react-icons/fi";
-export default function AuthLayout({ title, subtitle, children }) {
+export default function AuthLayout({ title, subtitle, children, className = "" }) {
   return (
-    <div className="auth-layout">
+    <div className={`auth-layout ${className}`}>
       <aside className="auth-story">
         <Brand />
         <div className="story-content">

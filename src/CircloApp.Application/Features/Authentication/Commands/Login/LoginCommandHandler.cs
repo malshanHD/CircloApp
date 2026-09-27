@@ -49,9 +49,9 @@ namespace CircloApp.Application.Features.Authentication.Commands.Login
                 UserId = user.Id,
                 Username = user.Username,
                 Email = user.Email,
-                AccessToken = accessToken,
+                AccessToken = accessToken.AccessToken,
                 RefreshToken = refreshToken,
-                ExpiresAt = _dateTimeProvider.UtcNow.AddMinutes(20)
+                ExpiresAt = accessToken.ExpiresAt
             };
         }
     }

@@ -10,6 +10,7 @@ import {
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "../src/App";
+import GoogleAuthProvider from "../src/components/GoogleAuthProvider";
 import api from "../src/services/api";
 import {
   eventId,
@@ -68,7 +69,7 @@ function mount(path = "/events", authenticated = true) {
   });
   render(
     <QueryClientProvider client={client}>
-      <App />
+      <GoogleAuthProvider clientId="test.apps.googleusercontent.com"><App /></GoogleAuthProvider>
     </QueryClientProvider>,
   );
 }

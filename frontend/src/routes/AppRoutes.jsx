@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, Link } from "react-router-dom";
-import Login from "../pages/auth/Login";
+const Login = lazy(() => import("../pages/auth/Login"));
 import Register from "../pages/auth/Register";
 import { lazy, Suspense } from "react";
 import { Skeleton } from "../components/common/UI";

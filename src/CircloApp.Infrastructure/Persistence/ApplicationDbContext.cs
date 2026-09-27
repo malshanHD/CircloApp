@@ -16,6 +16,7 @@ namespace CircloApp.Infrastructure.Persistence
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ExpenseAiCategory> ExpenseAiCategories { get; set; }
         public DbSet<EventAiAnalysis> EventAiAnalyses { get; set; }
+        public DbSet<UserExternalLogin> UserExternalLogins =>Set<UserExternalLogin>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,7 +30,8 @@ namespace CircloApp.Infrastructure.Persistence
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.Id = Guid.NewGuid();
+                    if (entry.Entity.Id == Guid.Empty)
+                        entry.Entity.Id = Guid.NewGuid();
                     entry.Entity.CreatedAt = DateTime.UtcNow;
                 }
                 else if (entry.State == EntityState.Modified)
