@@ -21,8 +21,8 @@ jobs:
       - name: Check Google Web Client ID
         if: github.event.action != 'closed'
         env:
-          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
-        run: test -n "$VITE_GOOGLE_CLIENT_ID" || { echo "Set the VITE_GOOGLE_CLIENT_ID repository variable before building."; exit 1; }
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID || secrets.VITE_GOOGLE_CLIENT_ID }}
+        run: test -n "$VITE_GOOGLE_CLIENT_ID" || { echo "Set the VITE_GOOGLE_CLIENT_ID repository variable or secret before building."; exit 1; }
       - uses: actions/checkout@v3
         with:
           submodules: true
@@ -41,7 +41,7 @@ jobs:
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         env:
-          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID || secrets.VITE_GOOGLE_CLIENT_ID }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_GENTLE_SEA_0DA286D00 }}
