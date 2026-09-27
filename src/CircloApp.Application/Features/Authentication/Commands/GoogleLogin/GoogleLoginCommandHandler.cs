@@ -121,7 +121,7 @@ namespace CircloApp.Application.Features.Authentication.Commands.GoogleLogin
                 FirstName = googleUserInfo.GivenName ?? googleUserInfo.Name ?? "Circlo",
                 LastName = googleUserInfo.FamilyName ?? string.Empty,
                 Email = googleUserInfo.Email,
-                Username = $"google_{Guid.NewGuid():N}"[..19],
+                Username = googleUserInfo.GivenName ?? googleUserInfo.Name ?? $"google_{Guid.NewGuid():N}"[..19],
                 ContactNumber = string.Empty,
                 PasswordHash = _passwordHasher.HashPassword(randomPassword),
                 EmailVerified = true
