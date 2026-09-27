@@ -92,6 +92,7 @@ export const expenseRows = [
   },
 ];
 export function fixture(method, path, data = {}) {
+  if (path === "/health") return { body: { status: "Healthy" } };
   const url = new URL(path, "http://fixture");
   const route = url.pathname.toLowerCase().replace(/^\/api/, "");
   const envelope = (value) => ({

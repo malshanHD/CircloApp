@@ -1,3 +1,3 @@
 import api from "./api";
-export const authService = async (path = "/", payload) =>
-  (await api.post(path, payload)).data;
+export const authService = async (path = "/", payload, config) =>
+  (await api.post(path, payload, config)).data;

@@ -84,3 +84,18 @@ it("rejects unsafe destinations and authentication loops",()=>{
   for(const path of ["https://evil.test","//evil.test","/\\evil.test","/login","/register",undefined]) expect(loginDestination(path)).toBe("/dashboard");
   expect(loginDestination("/accept-invite?eventId=abc")).toBe("/accept-invite?eventId=abc");
 });
+
+it("waits for the API to wake and resumes Google login without another click", async () => {
+  const originalGet = api.get.bind(api);
+  let probes = 0;
+  vi.spyOn(api, "get").mockImplementation((url, config) => {
+    if (url === "/health" && ++probes === 1) return Promise.reject({ response: { status: 503 } });
+    return originalGet(url, config);
+  });
+  mount(); await loadGoogle();
+  await userEvent.click(screen.getByRole("button", { name: "Continue with Google" }));
+  await screen.findByText("Waking up Circlo… 😴");
+  expect(requests.filter(r => r.url === "/auth/google")).toHaveLength(0);
+  await waitFor(() => expect(requests.filter(r => r.url === "/auth/google")).toHaveLength(1), { timeout: 4500 });
+  await waitFor(() => expect(localStorage.getItem("accessToken")).toMatch(/^test\./));
+});

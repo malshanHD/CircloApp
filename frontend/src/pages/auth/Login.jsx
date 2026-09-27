@@ -1,3 +1,5 @@
+import { waitForApi } from "../../services/apiReadiness";
+import LoginWaiting from "../../components/LoginWaiting";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
@@ -21,13 +23,29 @@ export default function Login() {
   const destination = loginDestination(location.state?.from);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const inFlight = useRef(false);
+  const requestController = useRef(null);
+  const [waiting, setWaiting] = useState(false);
+  const [apiReady, setApiReady] = useState(false);
+  useEffect(() => () => requestController.current?.abort(), []);
   const [googleError, setGoogleError] = useState(null);
   const [welcome, setWelcome] = useState(null);
   const mutation = useMutation({
     mutationFn: async ({ path, data }) => {
-      const response = await authService(path, data);
-      if (!response.data?.accessToken) throw new Error("Sign-in could not be completed. Please try again.");
-      return response.data;
+      const controller = new AbortController();
+      requestController.current = controller;
+      const reveal = setTimeout(() => setWaiting(true), 800);
+      try {
+        await waitForApi({ signal: controller.signal, onWaiting: () => setWaiting(true) });
+        controller.signal.throwIfAborted();
+        setApiReady(true);
+        const response = await authService(path, data, { signal: controller.signal });
+        if (!response.data?.accessToken) throw new Error("Sign-in could not be completed. Please try again.");
+        return response.data;
+      } finally {
+        clearTimeout(reveal);
+        if (!controller.signal.aborted) setWaiting(false);
+      }
+
     },
     onSuccess: setWelcome,
     onError: () => { inFlight.current = false; },
@@ -44,6 +62,7 @@ export default function Login() {
     if (inFlight.current) return;
     inFlight.current = true;
     setGoogleError(null);
+    setApiReady(false);
     mutation.mutate({ path, data });
   }
   function handleGoogleSuccess(response) {
@@ -58,6 +77,7 @@ export default function Login() {
   return <AuthLayout title="Welcome back." subtitle="Your next great plan starts here." className="login-layout">
     {location.state?.verified && <Success>Email verified. You're ready to sign in.</Success>}
     <div className={`login-interaction${welcome ? " login-complete" : ""}`} aria-busy={busy}>
+      {waiting && <LoginWaiting signingIn={apiReady} />}
       {welcome && <div className="login-success" role="status"><span className="login-check"><FiCheck aria-hidden="true" /></span><strong>You're in.</strong><span>Taking you to your circle…</span></div>}
       <form noValidate onSubmit={event => handleSubmit(data => submit("/auth/login", data))(event)} className="form-stack">
         <fieldset disabled={busy} className="form-stack login-fields">

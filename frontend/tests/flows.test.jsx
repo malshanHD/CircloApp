@@ -84,7 +84,7 @@ describe("authentication and errors", () => {
     await user.click(
       screen.getByRole("button", { name: "Sign in", exact: true }),
     );
-    await screen.findByRole("heading", { name: "Weekend in the hills" });
+    await screen.findByRole("heading", { name: "Weekend in the hills" }, { timeout: 5000 });
     expect(window.location.search).toBe("?tab=ai");
     expect(requests.find((r) => r.url === "/auth/login").data).toEqual({
       usernameOrEmail: "jamie@example.test",
@@ -229,7 +229,7 @@ describe("events and AI", () => {
   it("loads events, filters them, validates creation, invalidates cache and opens the new event", async () => {
     const client = mount("/events", true);
     const user = userEvent.setup();
-    await screen.findByRole("heading", { name: "Weekend in the hills" });
+    await screen.findByRole("heading", { name: "Weekend in the hills" }, { timeout: 5000 });
     await user.type(
       screen.getByPlaceholderText("Search this page…"),
       "no-match",

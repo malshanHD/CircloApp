@@ -11,7 +11,7 @@ api.interceptors.request.use((config) => {
       "Circlo's API URL is not configured. Set VITE_API_BASE_URL.",
     );
   const token = auth.getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token && config.headers.Authorization !== null) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 api.interceptors.response.use(
