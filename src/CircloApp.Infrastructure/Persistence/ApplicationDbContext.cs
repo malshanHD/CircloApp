@@ -16,6 +16,7 @@ namespace CircloApp.Infrastructure.Persistence
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<ExpenseAiCategory> ExpenseAiCategories { get; set; }
         public DbSet<EventAiAnalysis> EventAiAnalyses { get; set; }
+        public DbSet<UserExternalLogin> UserExternalLogins =>Set<UserExternalLogin>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

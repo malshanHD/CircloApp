@@ -1,4 +1,5 @@
-﻿using CircloApp.Application.Interfaces;
+﻿using CircloApp.Application.Common.Interfaces;
+using CircloApp.Application.Interfaces;
 using CircloApp.Application.Interfaces.AI;
 using CircloApp.Infrastructure.AI;
 using CircloApp.Infrastructure.AI.Plugins;
@@ -119,6 +120,12 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IExpenseSearchService, AzureExpenseSearchService>();
             services.AddScoped<IAiIntentService, SemanticKernelAiIntentService>();
             services.AddScoped<IExpenseRelevanceService, SemanticKernelExpenseRelevanceService>();
+
+            services.AddOptions<GoogleAuthOptions>().Bind(configuration.GetSection(GoogleAuthOptions.SectionName))
+                                                    .Validate(o => !string.IsNullOrWhiteSpace(o.ClientId), "Google OAuth Client ID is required.")
+                                                    .ValidateOnStart();
+
+            services.AddSingleton<IGoogleTokenValidator, GoogleTokenValidator>();
 
             return services;
         }

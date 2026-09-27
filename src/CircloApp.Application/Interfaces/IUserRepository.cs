@@ -11,5 +11,6 @@ namespace CircloApp.Application.Interfaces
         Task AddAsync(User user, CancellationToken cancellationToken);
         Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail);
         Task<List<GetUserResponse>> SearchUserByUsername(string username, CancellationToken cancellationToken);
+        Task<User?> GetByExternalLoginAsync(string provider, string providerSubject, CancellationToken cancellationToken = default);
     }
 }

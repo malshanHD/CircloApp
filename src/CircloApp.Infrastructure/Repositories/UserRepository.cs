@@ -45,5 +45,10 @@ namespace CircloApp.Infrastructure.Repositories
                                                     Username = user.Username
                                                 }).ToListAsync(cancellationToken);
         }
+
+        public async Task<User?> GetByExternalLoginAsync(string provider, string providerSubject, CancellationToken cancellationToken = default)
+        {
+            return await _context.UserExternalLogins.Where(x => x.Provider == provider && x.ProviderSubject == providerSubject).Select(x => x.User).SingleOrDefaultAsync(cancellationToken);
+        }
     }
 }

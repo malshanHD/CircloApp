@@ -1,4 +1,5 @@
 ﻿using CircloApp.Application.Features.Authentication.Commands;
+using CircloApp.Application.Features.Authentication.Commands.GoogleLogin;
 using CircloApp.Application.Features.Authentication.Commands.Login;
 using CircloApp.Application.Features.Authentication.Commands.VerifyOtp;
 using CircloApp.Application.Features.Authentication.DTOs;
@@ -43,6 +44,14 @@ namespace CircloApp.API.Controllers
         {
             var response = await _mediator.Send(new VerifyOtpCommand(request), cancellationToken);
             return Ok(ApiResponse<VerifyOtpResponse>.SuccessResponse(response, "Email verified successfully."));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("google")]
+        public async Task<ActionResult<LoginResponse>> GoogleLogin([FromBody] GoogleLoginRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _mediator.Send(new GoogleLoginCommand(request), cancellationToken);
+            return Ok(response);
         }
     }
 }
