@@ -5,6 +5,7 @@ import Navigation from "./NavigationBar";
 import InviteNotifications from "../components/events/InviteNotifications";
 import CreateEventModal from "../pages/events/CreateEventModal";
 import { Modal } from "../components/common/UI";
+import ThemeToggle from "../components/ThemeToggle";
 export default function MainLayout() {
   const [drawer, setDrawer] = useState(false);
   const [create, setCreate] = useState(false);
@@ -42,6 +43,7 @@ export default function MainLayout() {
             </span>
           </div>
           <span className="topbar-note">A little more together.</span>
+          <ThemeToggle />
           <InviteNotifications />
           <button
             className="button secondary topbar-create"

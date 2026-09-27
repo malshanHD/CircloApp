@@ -2064,3 +2064,63 @@ textarea::placeholder {
 @media (prefers-reduced-motion: reduce) {
   .login-layout .field:focus-within, .login-layout .button:not(:disabled):hover, .login-layout .button:not(:disabled):active { transform: none; }
 }
+
+/* Shared theme surfaces; illustrations retain their original accent colors. */
+:root { --surface: #fff; --page: #f8f7f4; --text: #242339; color-scheme: light; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #14131c;
+  --surface: #201e2b;
+  --text: #eeeaf8;
+  --muted: #b7afc6;
+  --border: #40394f;
+  --primary: #b6a2ff;
+  --teal: #8bd5ba;
+  color: var(--text);
+  background: var(--page);
+}
+body { background: var(--page); color: var(--text); }
+.theme-toggle { flex-shrink: 0; border: 1px solid var(--border); font-size: 1.15rem; }
+.auth-main { position: relative; }
+.auth-theme-toggle { position: absolute; top: 16px; right: 20px; }
+@media (max-width: 600px) {
+  .topbar .breadcrumb { display: none; }
+  .auth-main { padding-top: 76px; }
+}
+:root[data-theme="dark"] :is(.card, .modal, .desktop-sidebar, .auth-layout, .secondary, .floating-label, .chat-composer) {
+  background: var(--surface); color: var(--text);
+}
+:root[data-theme="dark"] .topbar { background: #201e2be6; }
+:root[data-theme="dark"] :is(input, textarea, select) { background: #191722; color: var(--text); border-color: var(--border); }
+:root[data-theme="dark"] :is(input, textarea)::placeholder { color: #aaa1ba; }
+:root[data-theme="dark"] :is(.icon-button, .password-toggle, .sidebar-content nav a, .breadcrumb strong, .detail-tabs button,
+  .story-content > p, .story-footer, .auth-footer, .nav-caption, .sidebar-note p, .profile-area > div > span,
+  .breadcrumb, .topbar-note, .app-footer, .dashboard-hero p, .hero-caption, .event-description, .event-meta,
+  .ai-banner p, .detail-meta, .summary-card > span, .summary-card p, .summary-card small, thead th,
+  .chat-disclaimer, .thinking) { color: var(--muted); }
+:root[data-theme="dark"] :is(.auth-story, .dashboard-hero, .ai-banner) { background: #2b243d; border-color: var(--border); }
+:root[data-theme="dark"] :is(.sidebar-note, .suggestions button, .chat-message, .invitation-item, thead th) {
+  background: #292433; border-color: var(--border); color: var(--text);
+}
+:root[data-theme="dark"] :is(.sidebar-content nav a.active, .empty-icon, .tiny-badge, .badge, .count-pill, .ai-icon, .invitation-icon, .login-check, .event-meta a) {
+  background: #392d50; color: #c6b5ff;
+}
+:root[data-theme="dark"] :is(.secondary:hover, .icon-button:hover, .sidebar-content nav a:hover, .suggestions button:hover) { background: #3b314c; }
+:root[data-theme="dark"] .detail-tabs button.active { color: var(--primary); }
+:root[data-theme="dark"] .primary { background: #7960d5; color: #fff; }
+:root[data-theme="dark"] .primary:hover { background: #876ee0; }
+:root[data-theme="dark"] .chat-message.user { background: #6047af; color: #fff; border-color: #8064c7; }
+:root[data-theme="dark"] :is(th, td, .event-meta, .sidebar-note, .chat-composer) { border-color: var(--border); }
+:root[data-theme="dark"] :is(.success-box, .balance-positive, .transaction-2) { background: #203c32; color: #9ae3ba; border-color: #3e6b54; }
+:root[data-theme="dark"] .error-box { background: #42232f; color: #ffbac6; border-color: #854456; }
+:root[data-theme="dark"] .field-error { color: #ffacba; }
+:root[data-theme="dark"] .balance-negative { background: #443224; color: #ffd0a6; }
+:root[data-theme="dark"] .transaction-1 { background: #392d50; color: #d1baff; }
+:root[data-theme="dark"] .skeleton div { background: #383144; }
+:root[data-theme="dark"] .login-success { background: #201e2bf5; color: var(--text); }
+:root[data-theme="dark"] .notification-count { border-color: var(--surface); }
+:root[data-theme="dark"] .event-art { background: #332e44; }
+:root[data-theme="dark"] .tone-1 .event-art { background: #243c33; }
+:root[data-theme="dark"] .tone-2 .event-art { background: #433728; }
+:root[data-theme="dark"] .event-art-icon { background: #201e2bcc; color: #d7caed; }
+:root[data-theme="dark"] .avatar { background: #493c2b; color: #ead2aa; }

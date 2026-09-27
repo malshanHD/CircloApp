@@ -9,6 +9,17 @@
       name="description"
       content="Circlo brings your people, plans, and shared expenses together."
     />
+    <script>
+      (() => {
+        let theme;
+        try { theme = localStorage.getItem("circlo-theme"); } catch { /* Storage may be unavailable. */ }
+        if (theme !== "light" && theme !== "dark") {
+          theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
     <title>Circlo — Shared plans. Clear expenses.</title>
   </head>
   <body>
