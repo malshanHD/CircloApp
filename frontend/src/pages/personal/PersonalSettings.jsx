@@ -5,7 +5,7 @@ import { Page, Field, ApiError, Success } from "../../components/common/UI";
 import { usePersonalQuery, usePersonalMutation } from "../../features/personalExpenses/hooks";
 import { personalExpenseService as service } from "../../services/personalExpenseService";
 import { currentMonth, monthParams, money } from "../../features/personalExpenses/format";
-import { PersonalNav, QueryState } from "./PersonalShared";
+import { QueryState } from "./PersonalShared";
 const limitRules = { required: "Enter a limit, including zero if needed.", min: { value: 0, message: "The limit cannot be negative." }, validate: v => /^\d+(\.\d{1,2})?$/.test(String(v)) || "Use up to two decimal places." };
 function DefaultForm({ data }) {
   const [saved, setSaved] = useState(false);
@@ -53,7 +53,7 @@ export default function PersonalSettings() {
   const params = monthParams(month);
   const settings = usePersonalQuery("/personal-expense-settings");
   const budget = usePersonalQuery(`/personal-expense-budgets/${params.year}/${params.month}`);
-  return <Page className="personal-page"><div className="page-heading"><div><span className="eyebrow">ROOM FOR WHAT MATTERS</span><h1>Budget settings</h1><p>A gentle guide for your monthly spending.</p></div></div><PersonalNav />
+  return <Page className="personal-page"><div className="page-heading"><div><span className="eyebrow">ROOM FOR WHAT MATTERS</span><h1>Budget settings</h1><p>A gentle guide for your monthly spending.</p></div></div>
     <label className="personal-month">Month for custom limit<input type="month" value={month} min="0001-01" max="9998-12" onChange={e => { if (e.target.value) setMonth(e.target.value); }} /></label>
     <div className="chart-grid"><QueryState query={settings}>{d => <DefaultForm data={d} />}</QueryState><QueryState query={budget}>{d => <OverrideForm key={month} data={d} params={params} currency={settings.data?.currencyCode || "LKR"} />}</QueryState></div>
   </Page>;

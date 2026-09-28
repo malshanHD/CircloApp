@@ -2234,3 +2234,95 @@ body { background: var(--page); color: var(--text); }
 .personal-balance.over-budget { background: linear-gradient(125deg, #faf1eb, #f3e8e2); }
 :root[data-theme="dark"] .personal-balance { background: linear-gradient(125deg, #352b46, #292237); }
 :root[data-theme="dark"] .personal-balance.over-budget { background: linear-gradient(125deg, #40302e, #312729); }
+
+/* Shared workspace shell: route-driven context, quiet emphasis, touch-friendly controls. */
+.workspace-switcher { display: flex; border-radius: 14px; background: #8874c512; margin-top: 30px; }
+.workspace-switcher button { width: 100%; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 12px 14px; border: 1px solid transparent; border-radius: 14px; background: transparent; color: var(--primary); font: inherit; text-align: left; cursor: pointer; transition: background 180ms, border-color 180ms; }
+.workspace-switch-label { display: grid; gap: 2px; flex: 1; }
+.workspace-switch-label > span { color: var(--muted); font-size: .72rem; }
+.workspace-switch-label strong { font-size: .9rem; font-weight: 600; }
+.workspace-switch-arrow { opacity: .7; }
+.workspace-switcher.compact button { min-height: 44px; padding: 6px 10px; gap: 8px; }
+.workspace-switcher.compact .workspace-switch-label > span { font-size: .65rem; }
+.workspace-switcher.compact .workspace-switch-label strong { font-size: .8rem; }
+.workspace-switcher button:hover { background: #8874c514; border-color: #8874c533; }
+.workspace-switcher svg { width: 18px; height: 18px; flex-shrink: 0; }
+.app-shell :is(a, button, input, select):focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+.app-shell .nav-caption { margin: 26px 14px 12px; font-size: .7rem; text-transform: uppercase; }
+.desktop-sidebar { overflow-y: auto; }
+.sidebar-content { min-height: 100%; height: auto; }
+.desktop-sidebar .sidebar-content { min-height: 100dvh; }
+.app-shell .sidebar-note { border: 0; padding: 18px 16px; }
+.app-shell .sidebar-note p { font-size: .8rem; }
+.app-shell .note-symbol { width: 25px; height: 25px; }
+.app-shell[data-workspace="groups"] .sidebar-note { background: #6ba99412; }
+.app-shell .profile-area .icon-button { min-width: 44px; min-height: 44px; }
+.app-shell .profile-area > div > span { font-size: .7rem; }
+.workspace-navigation { animation: workspace-reveal 180ms ease-out; }
+@keyframes workspace-reveal { from { opacity: .5; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+.mobile-workspace, .mobile-workspace-action { display: none; }
+.app-body { min-width: 0; }
+.main-content { width: 100%; max-width: 1400px; }
+.personal-page .page-heading { margin-bottom: 24px; }
+.personal-balance h2 { overflow-wrap: anywhere; }
+:root[data-theme="dark"] .workspace-switcher { background: #a892dc14; }
+:root[data-theme="dark"] .workspace-switcher button { color: #ded0ff; }
+:root[data-theme="dark"] .app-shell[data-workspace="groups"] .sidebar-note { background: #72c8ad12; }
+@media (max-width: 850px) {
+  .mobile-workspace { display: block; }
+  .topbar .breadcrumb { display: none; }
+  .workspace-switcher.compact { margin: 0; }
+  .topbar { gap: 10px; padding: 12px 16px; height: auto; min-height: 76px; }
+  .topbar-left { min-width: 0; gap: 8px; }
+  .mobile-workspace-action { display: flex; position: fixed; right: 20px; bottom: max(18px, env(safe-area-inset-bottom)); z-index: 15; box-shadow: 0 4px 18px #31204820; min-height: 48px; }
+  .app-footer { padding-bottom: 100px; }
+  .nav-drawer .workspace-switcher { margin-top: 24px; }
+  .nav-drawer .sidebar-note { margin-top: 24px; }
+  .nav-drawer .sidebar-content { padding-bottom: 20px; }
+  .personal-page > .page-heading > .button { display: none; }
+}
+@media (max-width: 400px) {
+  .topbar { gap: 6px; padding: 10px 12px; }
+  .topbar-left { gap: 4px; }
+  .workspace-switcher.compact button { padding: 8px 6px; gap: 4px; font-size: .75rem; }
+  .workspace-switcher.compact svg { width: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-navigation { animation: none; }
+  .workspace-switcher button { transition: none; }
+}
+.workspace-header-action { font-size: .8rem; min-height: 44px; }
+@media (max-width: 850px) {
+  .workspace-header-action { display: none; }
+  .nav-drawer .sidebar-content { min-height: 0; height: auto; }
+  .workspace-page-action { display: none; }
+}
+
+/* Budget card: soft spending bands, with a text status as well as color. */
+.personal-balance.budget-card { --budget-bg: #eee9f8; --budget-ink: #514078; --budget-accent: #7960b5; background: linear-gradient(125deg, var(--budget-bg), color-mix(in srgb, var(--budget-bg), white 22%)); color: var(--budget-ink); border-color: color-mix(in srgb, var(--budget-accent), transparent 80%); border-radius: 24px; justify-content: space-between; gap: 22px; min-height: 280px; box-shadow: 0 6px 20px #25203a08; }
+.personal-balance.budget-card[data-tone="healthy"] { --budget-bg: #e4f1e9; --budget-ink: #245b45; --budget-accent: #398261; }
+.personal-balance.budget-card[data-tone="steady"] { --budget-bg: #f5eedc; --budget-ink: #725821; --budget-accent: #977529; }
+.personal-balance.budget-card[data-tone="warning"] { --budget-bg: #f8e9dd; --budget-ink: #854820; --budget-accent: #b36231; }
+.personal-balance.budget-card[data-tone="risk"] { --budget-bg: #f6e4e7; --budget-ink: #8c3548; --budget-accent: #b74960; }
+.budget-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.budget-card-brand { font-size: 1.25rem; font-weight: 750; letter-spacing: -.06em; }
+.budget-card-brand > span { color: var(--budget-accent); }
+.budget-card-status { font-size: .7rem; font-weight: 650; padding: 5px 9px; border-radius: 20px; background: color-mix(in srgb, var(--budget-accent), transparent 90%); }
+.budget-card .eyebrow { color: var(--budget-ink); font-size: .65rem; letter-spacing: .1em; }
+.budget-card h2 { margin: 9px 0 0; color: inherit; font-size: clamp(1.4rem, 2vw, 2rem); font-variant-numeric: tabular-nums; }
+.budget-card .budget-card-usage p { color: var(--budget-ink); margin: 6px 0 0; font-size: .75rem; }
+.budget-card progress { accent-color: var(--budget-accent); height: 6px; }
+.budget-card progress::-webkit-progress-bar { background: color-mix(in srgb, var(--budget-accent), transparent 83%); }
+.budget-card progress::-webkit-progress-value { background: var(--budget-accent); }
+.budget-card progress::-moz-progress-bar { background: var(--budget-accent); }
+.budget-card-details { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid color-mix(in srgb, var(--budget-accent), transparent 80%); padding-top: 14px; }
+.budget-card-details > div { min-width: 0; display: grid; gap: 4px; }
+.budget-card-details > div:last-child { text-align: right; flex-shrink: 0; }
+.budget-card-details span { font-size: .65rem; }
+.budget-card-details strong { font-size: .8rem; font-weight: 600; overflow-wrap: anywhere; }
+:root[data-theme="dark"] .personal-balance.budget-card { --budget-bg: #30283e; --budget-ink: #dfd3f3; --budget-accent: #b6a0da; background: linear-gradient(125deg, var(--budget-bg), color-mix(in srgb, var(--budget-bg), black 14%)); }
+:root[data-theme="dark"] .personal-balance.budget-card[data-tone="healthy"] { --budget-bg: #20382e; --budget-ink: #bee6d1; --budget-accent: #7bc8a2; }
+:root[data-theme="dark"] .personal-balance.budget-card[data-tone="steady"] { --budget-bg: #393323; --budget-ink: #ead9aa; --budget-accent: #d0b46d; }
+:root[data-theme="dark"] .personal-balance.budget-card[data-tone="warning"] { --budget-bg: #403025; --budget-ink: #f1ceb1; --budget-accent: #dfab80; }
+:root[data-theme="dark"] .personal-balance.budget-card[data-tone="risk"] { --budget-bg: #402830; --budget-ink: #f3c3ce; --budget-accent: #e397a9; }
+@media (max-width: 400px) { .budget-card-details { gap: 10px; } .budget-card-details strong { font-size: .75rem; } }

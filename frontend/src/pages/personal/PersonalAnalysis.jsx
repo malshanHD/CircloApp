@@ -2,13 +2,13 @@ import { lazy, Suspense, useState } from "react";
 import { Page, Empty, Skeleton } from "../../components/common/UI";
 import { usePersonalQuery } from "../../features/personalExpenses/hooks";
 import { currentMonth, localDate, money, dateLabel } from "../../features/personalExpenses/format";
-import { PersonalNav, QueryState, Stat } from "./PersonalShared";
+import { QueryState, Stat } from "./PersonalShared";
 const PersonalCharts = lazy(() => import("./PersonalCharts"));
 export default function PersonalAnalysis() {
   const [range, setRange] = useState({ fromDate: `${currentMonth()}-01`, toDate: localDate() });
   const query = usePersonalQuery("/personal-expenses/analysis", range);
   function submit(e) { e.preventDefault(); setRange(Object.fromEntries(new FormData(e.currentTarget))); }
-  return <Page className="personal-page"><div className="page-heading"><div><span className="eyebrow">SEE THE BIGGER PICTURE</span><h1>Your spending insights</h1><p>Clear numbers. Useful patterns. Entirely your own.</p></div></div><PersonalNav />
+  return <Page className="personal-page"><div className="page-heading"><div><span className="eyebrow">SEE THE BIGGER PICTURE</span><h1>Your spending insights</h1><p>Clear numbers. Useful patterns. Entirely your own.</p></div></div>
     <form className="card personal-analysis-range" onSubmit={submit}><label>From date<input name="fromDate" type="date" required defaultValue={range.fromDate} /></label><label>To date<input name="toDate" type="date" required defaultValue={range.toDate} /></label><button className="button primary">Explore spending</button></form>
     <QueryState query={query}>{d => <>
       <p className="small muted personal-period">{dateLabel(d.fromDate)} – {dateLabel(d.toDate)} · {d.expenseCount} expenses</p>

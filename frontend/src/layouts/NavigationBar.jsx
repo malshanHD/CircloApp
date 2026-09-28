@@ -1,58 +1,25 @@
 import { NavLink } from "react-router-dom";
-import { FiGrid, FiLayers, FiLogOut, FiZap, FiPlus } from "react-icons/fi";
+import { FiLogOut, FiPlus } from "react-icons/fi";
 import { Brand } from "../components/common/UI";
 import { useAuth } from "../hooks/useAuth";
-export default function Navigation({ close = () => {}, create }) {
+import { useWorkspace } from "../features/workspace/WorkspaceContext";
+import WorkspaceSwitcher from "../features/workspace/WorkspaceSwitcher";
+
+export default function Navigation({ close = () => {}, primaryAction }) {
   const { session, logout } = useAuth();
-  return (
-    <div className="sidebar-content">
-      <Brand />
-      <p className="nav-caption">YOUR SPACE</p>
-      <nav aria-label="Main navigation">
-        <NavLink to="/home" onClick={close}><FiGrid /> Your space</NavLink>
-        <NavLink to="/personal-expenses" onClick={close}><FiLayers /> Personal expenses</NavLink>
-        <NavLink to="/dashboard" onClick={close}>
-          <FiGrid /> Group overview
-        </NavLink>
-        <NavLink to="/events" onClick={close}>
-          <FiLayers /> My events
-        </NavLink>
-        <NavLink to="/assistant" onClick={close}>
-          <FiZap /> Circlo AI <span className="tiny-badge">ASK</span>
-        </NavLink>
-      </nav>
-      <button
-        className="button primary wide sidebar-create"
-        onClick={() => {
-          close();
-          create();
-        }}
-      >
-        <FiPlus /> Create event
-      </button>
-      <div className="sidebar-bottom">
-        <div className="sidebar-note">
-          <span className="note-symbol">✳</span>
-          <h3>Better, together.</h3>
-          <p>
-            Make room for memories.
-            <br />
-            We'll keep things organized.
-          </p>
-        </div>
-        <div className="profile-area">
-          <span className="avatar">
-            {session?.username?.slice(0, 1).toUpperCase()}
-          </span>
-          <div>
-            <strong>{session?.username}</strong>
-            <span>Your personal space</span>
-          </div>
-          <button className="icon-button" onClick={logout} aria-label="Log out">
-            <FiLogOut />
-          </button>
-        </div>
-      </div>
+  const { mode, config } = useWorkspace();
+  const ModeIcon = config.icon;
+  return <div className="sidebar-content">
+    <Brand />
+    <WorkspaceSwitcher onSwitch={close} />
+    <p className="nav-caption">{config.subtitle}</p>
+    <nav key={mode} className="workspace-navigation" aria-label={`${config.label} navigation`}>
+      {config.navigation.map(({ to, label, icon: Icon }) => <NavLink key={to} to={to} end={to !== "/events"} onClick={close}><Icon aria-hidden="true" />{label}</NavLink>)}
+    </nav>
+    <button className="button secondary wide sidebar-create" onClick={() => { close(); primaryAction(); }}><FiPlus aria-hidden="true" />{config.action}</button>
+    <div className="sidebar-bottom">
+      <div className="sidebar-note"><ModeIcon className="note-symbol" aria-hidden="true" /><h3>{config.copy}</h3><p>{config.description}</p></div>
+      <div className="profile-area"><span className="avatar" aria-hidden="true">{session?.username?.slice(0, 1).toUpperCase()}</span><div><strong>{session?.username}</strong><span>Your Circlo account</span></div><button className="icon-button" onClick={logout} aria-label="Log out" title="Log out"><FiLogOut /></button></div>
     </div>
-  );
+  </div>;
 }

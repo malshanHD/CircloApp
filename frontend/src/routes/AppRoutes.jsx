@@ -10,7 +10,7 @@ import Events from "../pages/events/Events";
 const EventDetails = lazy(() => import("../pages/events/EventDetails"));
 import AcceptInvitation from "../pages/events/AcceptInvitation";
 import MainLayout from "../layouts/MainLayout";
-const Home = lazy(() => import("../pages/Home"));
+import { WorkspaceLanding } from "../features/workspace/WorkspaceContext";
 const PersonalExpenses = lazy(() => import("../pages/personal/PersonalExpenses"));
 const PersonalAnalysis = lazy(() => import("../pages/personal/PersonalAnalysis"));
 const PersonalSettings = lazy(() => import("../pages/personal/PersonalSettings"));
@@ -30,7 +30,7 @@ export default function AppRoutes() {
         <Route path="/verify-otp" element={<OtpVerification />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            <Route path="/home" element={<Home />} />
+            <Route path="/home" element={<WorkspaceLanding />} />
             <Route path="/personal-expenses" element={<PersonalExpenses />} />
             <Route path="/personal-expenses/analysis" element={<PersonalAnalysis />} />
             <Route path="/personal-expenses/settings" element={<PersonalSettings />} />
@@ -47,8 +47,8 @@ export default function AppRoutes() {
             <div className="empty">
               <h1>This page wandered off.</h1>
               <p>Let's get you back to your circle.</p>
-              <Link className="button primary" to="/dashboard">
-                Back to dashboard
+              <Link className="button primary" to="/home">
+                Back to your workspace
               </Link>
             </div>
           }
