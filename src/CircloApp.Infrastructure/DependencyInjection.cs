@@ -121,6 +121,11 @@ namespace CircloApp.Infrastructure
             services.AddScoped<IAiIntentService, SemanticKernelAiIntentService>();
             services.AddScoped<IExpenseRelevanceService, SemanticKernelExpenseRelevanceService>();
 
+            services.AddScoped<IPersonalExpenseRepository, PersonalExpenseRepository>();
+            services.AddScoped<IPersonalBudgetRepository, PersonalBudgetRepository>();
+            services.AddScoped<IPersonalAnalyticsRepository, PersonalAnalyticsRepository>();
+            services.AddScoped<IPersonalExpenseCategoryRepository, PersonalExpenseCategoryRepository>();
+
             services.AddOptions<GoogleAuthOptions>().Bind(configuration.GetSection(GoogleAuthOptions.SectionName))
                                                     .Validate(o => !string.IsNullOrWhiteSpace(o.ClientId), "Google OAuth Client ID is required.")
                                                     .ValidateOnStart();

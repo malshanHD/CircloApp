@@ -9,8 +9,10 @@ export default function Navigation({ close = () => {}, create }) {
       <Brand />
       <p className="nav-caption">YOUR SPACE</p>
       <nav aria-label="Main navigation">
+        <NavLink to="/home" onClick={close}><FiGrid /> Your space</NavLink>
+        <NavLink to="/personal-expenses" onClick={close}><FiLayers /> Personal expenses</NavLink>
         <NavLink to="/dashboard" onClick={close}>
-          <FiGrid /> Overview
+          <FiGrid /> Group overview
         </NavLink>
         <NavLink to="/events" onClick={close}>
           <FiLayers /> My events

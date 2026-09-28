@@ -2147,3 +2147,90 @@ body { background: var(--page); color: var(--text); }
 @media (prefers-reduced-motion: reduce) {
   .cold-start-screen, .cold-start-screen h2, .cold-start-orbit .brand-mark, .cold-start-satellite, .cold-start-dots i { animation: none; }
 }
+
+/* Personal spending stays visually related to Circlo's shared-plan space. */
+.personal-page { min-width: 0; }
+.personal-nav { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.personal-nav a { padding: 10px 14px; border-radius: 9px; color: var(--muted); font-size: .85rem; font-weight: 600; }
+.personal-nav a.active { color: var(--primary); background: #8b78d218; }
+.personal-nav a:hover { background: #8b78d210; }
+.personal-month { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 0 0 24px; font-size: .85rem; }
+.personal-month input { width: auto; max-width: 100%; }
+.personal-stat { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.personal-stat > strong { font-size: clamp(1.4rem, 2.1vw, 2rem); overflow-wrap: anywhere; font-weight: 600; }
+.personal-stat .text-button { display: block; margin-top: 14px; font-size: .8rem; }
+.personal-balance { display: flex; flex-direction: column; justify-content: center; gap: 14px; background: #f1ecfa; min-width: 0; }
+.personal-balance h2 { font-size: clamp(1.4rem, 2.1vw, 2rem); overflow-wrap: anywhere; line-height: 1.3; }
+.personal-balance p { font-size: .75rem; color: var(--muted); }
+.personal-balance progress { width: 100%; height: 9px; border: 0; border-radius: 8px; overflow: hidden; accent-color: #7960ca; }
+.personal-balance progress::-webkit-progress-bar { background: #dcd3ee; border-radius: 8px; }
+.personal-balance progress::-webkit-progress-value { background: #7960ca; border-radius: 8px; transition: width .35s ease; }
+.personal-balance.over-budget { background: #f8eee8; }
+.personal-balance.over-budget .eyebrow { color: #905032; }
+.personal-small-stats { display: flex; gap: 18px; flex-wrap: wrap; margin: 20px 0; font-size: .8rem; color: var(--muted); }
+.personal-charts { margin-top: 22px; align-items: start; }
+.personal-charts h2 { font-size: 1.05rem; margin-bottom: 18px; }
+.personal-charts summary { color: var(--primary); cursor: pointer; font-size: .8rem; padding: 8px 0; }
+.personal-breakdown { list-style: none; margin: 14px 0 0; padding: 0; }
+.personal-breakdown li { display: flex; justify-content: space-between; align-items: start; gap: 14px; border-bottom: 1px solid var(--border); padding: 11px 0; font-size: .8rem; }
+.personal-breakdown li:last-child { border: 0; }
+.personal-breakdown li > span { overflow-wrap: anywhere; min-width: 0; }
+.personal-breakdown strong { text-align: right; font-weight: 600; }
+.personal-breakdown small, .personal-list small { display: block; font-size: .72rem; color: var(--muted); margin-top: 4px; font-weight: 400; }
+.personal-recent, .personal-comparison { margin-top: 24px; }
+.personal-comparison { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.personal-filters { margin: 18px 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: end; gap: 14px; }
+.personal-filters label, .personal-analysis-range label { display: flex; flex-direction: column; gap: 7px; font-size: .76rem; font-weight: 600; }
+.personal-filters input, .personal-filters select { font-size: .85rem; }
+.personal-list { padding: 0 16px; overflow-x: auto; }
+.personal-list table { white-space: normal; }
+.personal-list th:first-child { min-width: 150px; overflow-wrap: anywhere; max-width: 300px; }
+.personal-list td:last-child { white-space: nowrap; }
+.personal-pagination { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 18px 0; font-size: .8rem; }
+.personal-amount input { font-size: 2rem; font-weight: 600; color: var(--primary); padding: 16px; }
+.personal-settings-form { margin-top: 0; align-self: start; }
+.personal-analysis-range { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
+.personal-analysis-range label { flex: 1; min-width: 160px; }
+.personal-period { margin: 20px 0; }
+.personal-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.personal-choice { padding: 36px; display: flex; flex-direction: column; gap: 22px; background: #f3effb; }
+.personal-choice .empty-icon { margin: 0; width: 64px; height: 64px; font-size: 1.8rem; }
+.personal-choice h2 { font-size: clamp(1.6rem, 2.5vw, 2.2rem); line-height: 1.25; max-width: 360px; }
+.personal-choice p { color: var(--muted); font-size: .9rem; }
+.personal-choice .button { align-self: start; margin-top: auto; }
+.group-choice { background: #eef4f0; }
+.personal-month-content { animation: enter .22s ease-out; }
+:root[data-theme="dark"] :is(.personal-choice, .personal-balance) { background: #2f263f; }
+:root[data-theme="dark"] .group-choice { background: #23392f; }
+:root[data-theme="dark"] .personal-balance.over-budget { background: #3a2d28; }
+:root[data-theme="dark"] .personal-balance.over-budget .eyebrow { color: #eac1a1; }
+@media (max-width: 1100px) { .personal-summary { grid-template-columns: 1fr; } }
+@media (max-width: 700px) {
+  .personal-choices { grid-template-columns: 1fr; }
+  .personal-choice { padding: 25px; }
+  .personal-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .personal-list { padding: 12px; overflow: visible; }
+  .personal-list table, .personal-list tbody, .personal-list tr, .personal-list td, .personal-list th { display: block; width: 100%; }
+  .personal-list thead { display: none; }
+  .personal-list tr { padding: 12px; border-bottom: 1px solid var(--border); }
+  .personal-list tr:last-child { border-bottom: 0; }
+  .personal-list td, .personal-list th { padding: 7px 0; border: 0; max-width: none; }
+  .personal-list td[data-label]::before { content: attr(data-label) ": "; color: var(--muted); }
+  .personal-list th { font-size: 1rem; }
+  .personal-pagination { flex-wrap: wrap; }
+  .personal-pagination span { order: -1; width: 100%; text-align: center; }
+  .personal-nav { gap: 3px; }
+  .personal-nav a { font-size: .75rem; padding: 10px; }
+  .personal-summary .personal-stat { display: flex; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .personal-month-content { animation: none; }
+  .personal-balance progress::-webkit-progress-value { transition: none; }
+}
+/* A quiet, card-inspired treatment only for the remaining monthly balance. */
+.personal-balance { position: relative; overflow: hidden; background: linear-gradient(125deg, #f3edff, #e9e3f5); box-shadow: 0 8px 24px #6650cc0d; }
+.personal-balance::after { content: ""; position: absolute; width: 180px; height: 180px; border: 1px solid #8b78d222; border-radius: 50%; right: -75px; top: -85px; box-shadow: 0 0 0 16px #8b78d20a, 0 0 0 34px #8b78d208; pointer-events: none; }
+.personal-balance > * { position: relative; z-index: 1; }
+.personal-balance.over-budget { background: linear-gradient(125deg, #faf1eb, #f3e8e2); }
+:root[data-theme="dark"] .personal-balance { background: linear-gradient(125deg, #352b46, #292237); }
+:root[data-theme="dark"] .personal-balance.over-budget { background: linear-gradient(125deg, #40302e, #312729); }
