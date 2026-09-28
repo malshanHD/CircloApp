@@ -20,6 +20,11 @@ namespace CircloApp.API.Middlewares
             {
                 await _next(context);
             }
+            catch (NotFoundException ex)
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                await context.Response.WriteAsJsonAsync(ApiResponse<object>.FailureResponse(ex.Message));
+            }
             catch (BadRequestException ex)
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;

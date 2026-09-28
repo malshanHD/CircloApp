@@ -10,6 +10,10 @@ import Events from "../pages/events/Events";
 const EventDetails = lazy(() => import("../pages/events/EventDetails"));
 import AcceptInvitation from "../pages/events/AcceptInvitation";
 import MainLayout from "../layouts/MainLayout";
+const Home = lazy(() => import("../pages/Home"));
+const PersonalExpenses = lazy(() => import("../pages/personal/PersonalExpenses"));
+const PersonalAnalysis = lazy(() => import("../pages/personal/PersonalAnalysis"));
+const PersonalSettings = lazy(() => import("../pages/personal/PersonalSettings"));
 export default function AppRoutes() {
   return (
     <Suspense
@@ -20,12 +24,16 @@ export default function AppRoutes() {
       }
     >
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-otp" element={<OtpVerification />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/personal-expenses" element={<PersonalExpenses />} />
+            <Route path="/personal-expenses/analysis" element={<PersonalAnalysis />} />
+            <Route path="/personal-expenses/settings" element={<PersonalSettings />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:eventId" element={<EventDetails />} />

@@ -19,6 +19,10 @@ namespace CircloApp.Domain.Entities
         public ICollection<EventMember> EventMemberships { get; set; } = new List<EventMember>();
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
         public ICollection<UserExternalLogin> ExternalLogins { get; private set; } = new List<UserExternalLogin>();
+        public ICollection<PersonalExpense> PersonalExpenses { get; set; } = new List<PersonalExpense>();
+        public ICollection<MonthlyExpenseBudget> MonthlyExpenseBudgets { get; set; } = new List<MonthlyExpenseBudget>();
+        public ICollection<PersonalExpenseCategory> PersonalExpenseCategories { get; set; } = new List<PersonalExpenseCategory>();
+        public PersonalExpenseSettings? PersonalExpenseSettings { get; set; }
 
         public UserExternalLogin? AddExternalLogin(string provider, string providerSubject)
         {

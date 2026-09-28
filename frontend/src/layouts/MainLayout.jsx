@@ -15,7 +15,10 @@ export default function MainLayout() {
     main.current?.focus();
     window.scrollTo(0, 0);
   }, [location.pathname]);
-  const section = location.pathname.startsWith("/events")
+  const section = location.pathname.startsWith("/personal-expenses")
+    ? "Personal expenses"
+    : location.pathname === "/home" ? "Your space"
+    : location.pathname.startsWith("/events")
     ? "My events"
     : location.pathname.startsWith("/assistant")
       ? "Circlo AI"

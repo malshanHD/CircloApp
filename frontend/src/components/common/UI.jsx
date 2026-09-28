@@ -12,7 +12,7 @@ import { Link } from "react-router-dom";
 import { getApiError } from "../../utils/apiError";
 export function Brand() {
   return (
-    <Link to="/dashboard" className="brand" aria-label="Circlo home">
+    <Link to="/home" className="brand" aria-label="Circlo home">
       <span className="brand-mark" aria-hidden="true">
         <i />
         <i />
