@@ -32,7 +32,7 @@ export default function Register() {
     maxLength: { value: 50, message: "Use 50 characters or fewer." },
     validate: (value) => Boolean(value.trim()) || "This field cannot be blank.",
   });
-  if (session) return <Navigate to="/dashboard" replace />;
+  if (session) return <Navigate to="/home" replace />;
   return (
     <AuthLayout
       title="Find your circle."

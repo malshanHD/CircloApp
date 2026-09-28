@@ -11,10 +11,13 @@ export default function AuthProvider({ children }) {
       setSession(readSession());
     };
     window.addEventListener(SESSION_EVENT, sync);
-    window.addEventListener("storage", sync);
+    const syncSession = (event) => {
+      if (event.key === "accessToken" || event.key === null) sync();
+    };
+    window.addEventListener("storage", syncSession);
     return () => {
       window.removeEventListener(SESSION_EVENT, sync);
-      window.removeEventListener("storage", sync);
+      window.removeEventListener("storage", syncSession);
     };
   }, [client]);
   useEffect(() => {

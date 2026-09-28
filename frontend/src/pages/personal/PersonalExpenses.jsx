@@ -1,14 +1,16 @@
 import { lazy, Suspense, useState, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { FiChevronLeft, FiChevronRight, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { Page, ApiError, Empty, Modal, Skeleton, Success } from "../../components/common/UI";
 import { usePersonalQuery, usePersonalMutation } from "../../features/personalExpenses/hooks";
 import { personalExpenseService as service } from "../../services/personalExpenseService";
 import { currentMonth, monthParams, moveMonth, money, dateLabel, paymentMethods } from "../../features/personalExpenses/format";
-import { PersonalNav, QueryState, Stat } from "./PersonalShared";
+import { QueryState, Stat } from "./PersonalShared";
 import ExpenseForm from "./ExpenseForm";
+import BalanceCard from "./BalanceCard";
 const PersonalCharts = lazy(() => import("./PersonalCharts"));
 export default function PersonalExpenses() {
+  const { addExpense } = useOutletContext();
   const [month, setMonth] = useState(currentMonth);
   const [filters, setFilters] = useState({});
   const [page, setPage] = useState(1);
@@ -34,18 +36,14 @@ export default function PersonalExpenses() {
     finally { deleteLock.current = false; }
   }
   return <Page className="personal-page">
-    <div className="page-heading"><div><span className="eyebrow">YOUR MONEY, A LITTLE CLEARER</span><h1>Personal expenses</h1><p>Small details. A clearer picture.</p></div><button className="button primary" onClick={() => setEditing({})}><FiPlus /> Add expense</button></div>
-    <PersonalNav />
+    <div className="page-heading"><div><span className="eyebrow">YOUR MONEY, A LITTLE CLEARER</span><h1>Personal expenses</h1><p>Small details. A clearer picture.</p></div><button className="button primary" onClick={addExpense}><FiPlus /> Add expense</button></div>
+
     <div className="personal-month"><button className="icon-button" aria-label="Previous month" disabled={month <= "0001-01"} onClick={() => changeMonth(moveMonth(month, -1))}><FiChevronLeft /></button><label><span className="sr-only">Dashboard month</span><input type="month" min="0001-01" max="9998-12" value={month} onChange={e => changeMonth(e.target.value)} /></label><button className="icon-button" aria-label="Next month" disabled={month >= "9998-12"} onClick={() => changeMonth(moveMonth(month, 1))}><FiChevronRight /></button></div>
     {message && <Success>{message}</Success>}
     <QueryState query={dashboard}>{d => <div key={month} className="personal-month-content">
       <div className="summary-grid personal-summary">
         <Stat title="Total spent" note={`${d.expenseCount} expenses`}>{money(d.totalSpent, currency)}</Stat>
-        <section className={`card personal-balance ${d.budgetStatus === "Exceeded" ? "over-budget" : ""}`}>
-          <span className="eyebrow">Remaining this month</span><h2>{d.effectiveMonthlyLimit == null ? "No monthly limit set" : d.overBudgetAmount > 0 ? `Over budget by ${money(d.overBudgetAmount, currency)}` : money(d.remainingBalance, currency)}</h2>
-          <p>{new Date(`${month}-01T12:00:00`).toLocaleDateString("en-GB", { month: "long", year: "numeric" })} · {d.budgetStatus.replace(/([a-z])([A-Z])/g, "$1 $2")}</p>
-          {d.effectiveMonthlyLimit != null ? <><progress aria-label="Monthly budget used" max={100} value={d.percentageUsed == null ? (d.totalSpent > 0 ? 100 : 0) : Math.min(100, d.percentageUsed)} /><p>{d.percentageUsed == null ? "Percentage unavailable for a zero limit" : `${d.percentageUsed}% of budget used`}</p></> : <Link className="text-button" to={`/personal-expenses/settings?month=${month}`}>Set a monthly limit →</Link>}
-        </section>
+        <BalanceCard data={d} month={month} currency={currency} />
         <Stat title="Monthly spending limit" note={d.limitSource === "MonthlyOverride" ? "Custom limit for this month" : "Default monthly limit"}>{money(d.effectiveMonthlyLimit, currency)}<Link className="text-button small" to={`/personal-expenses/settings?month=${month}`}>Manage budget →</Link></Stat>
       </div>
       <div className="personal-small-stats"><span>Average per day: <strong>{money(d.averageDailySpending, currency)}</strong></span><span>Largest expense: <strong>{d.largestExpense ? `${d.largestExpense.description} · ${money(d.largestExpense.amount, currency)}` : "None yet"}</strong></span></div>
@@ -64,7 +62,7 @@ export default function PersonalExpenses() {
         <button className="button primary">Apply filters</button><button className="button secondary" type="reset" onClick={() => { setFilters({}); setPage(1); }}>Reset</button>
         {categories.isPending && <span role="status">Loading categories…</span>}{categories.isError && <ApiError error={categories.error} retry={() => categories.refetch()} />}
       </form>
-      <QueryState query={list}>{data => data.items.length ? <><div className="card personal-list"><table><thead><tr><th>Expense</th><th>Date</th><th>Category / method</th><th>Amount</th><th>Actions</th></tr></thead><tbody>{data.items.map(e => <tr key={e.id}><th scope="row">{e.description}{e.note && <small>{e.note}</small>}</th><td data-label="Date">{dateLabel(e.expenseDate)}</td><td data-label="Category">{e.categoryName}<small>{e.paymentMethod || "Not specified"}</small></td><td data-label="Amount">{money(e.amount, currency)}</td><td><button className="icon-button" aria-label={`Edit ${e.description}`} onClick={() => setEditing(e)}><FiEdit2 /></button><button className="icon-button" aria-label={`Delete ${e.description}`} onClick={() => { remove.reset(); setDeleting(e); }}><FiTrash2 /></button></td></tr>)}</tbody></table></div><div className="personal-pagination"><button className="button secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</button><span>Page {data.page} of {data.totalPages} · {data.totalCount} expenses</span><button className="button secondary" disabled={page >= data.totalPages} onClick={() => setPage(p => p + 1)}>Next</button></div></> : <Empty title="A little space for your spending story." action={<button className="button primary" onClick={() => setEditing({})}>Add an expense</button>}>No expenses match this period and these filters.</Empty>}</QueryState>
+      <QueryState query={list}>{data => data.items.length ? <><div className="card personal-list"><table><thead><tr><th>Expense</th><th>Date</th><th>Category / method</th><th>Amount</th><th>Actions</th></tr></thead><tbody>{data.items.map(e => <tr key={e.id}><th scope="row">{e.description}{e.note && <small>{e.note}</small>}</th><td data-label="Date">{dateLabel(e.expenseDate)}</td><td data-label="Category">{e.categoryName}<small>{e.paymentMethod || "Not specified"}</small></td><td data-label="Amount">{money(e.amount, currency)}</td><td><button className="icon-button" aria-label={`Edit ${e.description}`} onClick={() => setEditing(e)}><FiEdit2 /></button><button className="icon-button" aria-label={`Delete ${e.description}`} onClick={() => { remove.reset(); setDeleting(e); }}><FiTrash2 /></button></td></tr>)}</tbody></table></div><div className="personal-pagination"><button className="button secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Previous</button><span>Page {data.page} of {data.totalPages} · {data.totalCount} expenses</span><button className="button secondary" disabled={page >= data.totalPages} onClick={() => setPage(p => p + 1)}>Next</button></div></> : <Empty title="A little space for your spending story." action={<button className="button primary" onClick={addExpense}>Add your first expense</button>}>No expenses match this period and these filters.</Empty>}</QueryState>
     </section>
     {editing && <ExpenseForm expense={editing.id ? editing : null} onClose={() => setEditing(null)} onSaved={() => { setMessage(editing.id ? "Expense updated." : "Expense saved."); setEditing(null); setPage(1); }} />}
     {deleting && <Modal title="Delete this expense?" onClose={() => setDeleting(null)} busy={remove.isPending}><p><strong>{deleting.description}</strong> · {money(deleting.amount, currency)}</p><p className="muted small">It will be removed from your spending totals and insights.</p><ApiError error={remove.error} /><div className="form-actions"><button className="button secondary" disabled={remove.isPending} onClick={() => setDeleting(null)}>Keep expense</button><button className="button primary" disabled={remove.isPending} onClick={deleteExpense}>{remove.isPending ? "Deleting…" : "Delete expense"}</button></div></Modal>}

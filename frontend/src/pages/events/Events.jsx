@@ -42,7 +42,7 @@ export default function Events({ assistant = false }) {
               : "All your shared events, in one happy place."}
           </p>
         </div>
-        <button className="button primary" onClick={createEvent}>
+        <button className="button primary workspace-page-action" onClick={createEvent}>
           <FiPlus /> Create event
         </button>
       </div>
